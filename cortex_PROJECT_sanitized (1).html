@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CORTEX — Ops Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+--bg0:#0A0A0C;--bg1:#111116;--bg2:#16161D;--bg3:#1C1C25;--bg4:#22222D;
+--border:#2A2A38;--border2:#353548;--border3:#454560;
+--txt1:#F0EFF8;--txt2:#A8A8C0;--txt3:#6B6B85;--txt4:#3D3D52;
+--purple:#7B6EF6;--purple2:#9B8FF8;--purple3:#5A4ED4;--purple-bg:rgba(123,110,246,0.1);--purple-bg2:rgba(123,110,246,0.15);
+--teal:#22D3A8;--teal-bg:rgba(34,211,168,0.1);
+--coral:#F06060;--coral-bg:rgba(240,96,96,0.1);
+--amber:#F59E0B;--amber-bg:rgba(245,158,11,0.1);
+--blue:#60A5FA;--blue-bg:rgba(96,165,250,0.1);
+--green:#4ADE80;--green-bg:rgba(74,222,128,0.1);
+--r:8px;--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--txt1);font-family:var(--font);font-size:13px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── SHELL ── */
+.shell{display:flex;height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:224px;min-width:224px;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:relative}
+.sidebar-top{padding:16px 14px 12px;border-bottom:1px solid var(--border)}
+
+/* LOGO */
+.logo{display:flex;align-items:center;gap:9px;margin-bottom:2px}
+.logo-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--purple3),var(--purple));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:18px;height:18px}
+.logo-text{display:flex;flex-direction:column}
+.logo-name{font-size:15px;font-weight:700;color:var(--txt1);letter-spacing:0.5px}
+.logo-tagline{font-size:9px;font-weight:500;color:var(--txt3);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+
+/* MARCA SELECTOR */
+.marca-wrap{margin-top:10px}
+.marca-label{font-size:9px;font-weight:600;color:var(--txt3);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.marca-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--txt1);font-size:12px;font-family:var(--font);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6B85' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:28px}
+.marca-select:focus{outline:none;border-color:var(--purple)}
+
+/* NAV */
+.nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-grp{margin-bottom:2px}
+.nav-grp-label{font-size:9px;font-weight:600;color:var(--txt4);letter-spacing:1.2px;text-transform:uppercase;padding:10px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 14px;margin:1px 8px;border-radius:7px;color:var(--txt2);cursor:pointer;font-size:12.5px;font-weight:400;transition:all 0.12s;position:relative}
+.nav-item:hover{background:var(--bg3);color:var(--txt1)}
+.nav-item.active{background:var(--purple-bg2);color:var(--purple2);font-weight:500}
+.nav-item.active::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:16px;border-radius:0 2px 2px 0;background:var(--purple)}
+.nav-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;background:var(--coral-bg);color:var(--coral)}
+.nav-badge.blue{background:var(--blue-bg);color:var(--blue)}
+
+/* SIDEBAR FOOTER */
+.sidebar-footer{padding:12px 14px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:9px}
+.user-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--purple3),var(--teal));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:12px;font-weight:500;color:var(--txt1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--txt3)}
+.user-sso{font-size:9px;font-weight:600;color:var(--teal);background:var(--teal-bg);padding:2px 5px;border-radius:4px;letter-spacing:0.5px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* TOPBAR */
+.topbar{height:52px;background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.topbar-title{font-size:14px;font-weight:600;color:var(--txt1);flex:1}
+.topbar-marca{font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;background:var(--purple-bg);color:var(--purple2);border:1px solid rgba(123,110,246,0.2)}
+.topbar-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--txt2);cursor:pointer;font-size:12px;font-family:var(--font);transition:all 0.1s;white-space:nowrap}
+.topbar-btn:hover{border-color:var(--border2);color:var(--txt1);background:var(--bg4)}
+.topbar-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.topbar-divider{width:1px;height:20px;background:var(--border)}
+.topbar-theme{width:32px;height:32px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2)}
+.topbar-theme:hover{color:var(--txt1);border-color:var(--border2)}
+.topbar-theme svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:20px}
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── COMPONENTS ── */
+
+/* KPI GRID */
+.kpi-grid{display:grid;gap:10px;margin-bottom:16px}
+.kpi-grid-4{grid-template-columns:repeat(4,1fr)}
+.kpi-grid-5{grid-template-columns:repeat(5,1fr)}
+.kpi-grid-8{grid-template-columns:repeat(4,1fr)}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent,var(--purple)),transparent);opacity:0}
+.kpi:hover::after{opacity:1}
+.kpi-label{font-size:10px;font-weight:500;color:var(--txt3);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px}
+.kpi-value{font-size:22px;font-weight:700;color:var(--txt1);line-height:1;margin-bottom:5px}
+.kpi-delta{font-size:11px;display:flex;align-items:center;gap:4px;color:var(--txt3)}
+.kpi-delta svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kpi-delta.up{color:var(--teal)}
+.kpi-delta.down{color:var(--coral)}
+.kpi-delta.warn{color:var(--amber)}
+.kpi-sub{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* CARD */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:0.7px;display:flex;align-items:center;gap:6px}
+.card-title svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-action{font-size:11px;color:var(--purple);cursor:pointer}
+.card-action:hover{color:var(--purple2)}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid-13{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+
+/* TABLE */
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.tbl-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+.tbl-title{font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:0.7px}
+.tbl-filters{display:flex;gap:8px;align-items:center}
+.tbl-filter{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--txt2);font-size:11px;font-family:var(--font);cursor:pointer}
+.tbl-filter:focus{outline:none;border-color:var(--purple)}
+.tbl-search{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--txt1);font-size:11px;font-family:var(--font);width:160px}
+.tbl-search:focus{outline:none;border-color:var(--purple)}
+.tbl-search::placeholder{color:var(--txt4)}
+table{width:100%;border-collapse:collapse}
+th{padding:8px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);background:var(--bg1);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--txt1);vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.mono{font-family:var(--mono);font-size:11px;color:var(--txt3)}
+
+/* PILLS */
+.pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;white-space:nowrap;display:inline-block}
+.pill-purple{background:var(--purple-bg2);color:var(--purple2);border:1px solid rgba(123,110,246,0.2)}
+.pill-teal{background:var(--teal-bg);color:var(--teal);border:1px solid rgba(34,211,168,0.2)}
+.pill-coral{background:var(--coral-bg);color:var(--coral);border:1px solid rgba(240,96,96,0.2)}
+.pill-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,0.2)}
+.pill-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(96,165,250,0.2)}
+.pill-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
+.pill-gray{background:var(--bg3);color:var(--txt3);border:1px solid var(--border)}
+
+/* BAR CHART */
+.bar-chart{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:flex;align-items:center;gap:8px}
+.bar-lbl{font-size:11px;color:var(--txt2);width:110px;text-align:right;flex-shrink:0}
+.bar-bg{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.6s cubic-bezier(.4,0,.2,1)}
+.bar-val{font-size:11px;font-weight:600;color:var(--txt1);width:36px;text-align:right;flex-shrink:0}
+
+/* RANK */
+.rank-list{display:flex;flex-direction:column;gap:0}
+.rank-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.rank-row:last-child{border:none}
+.rank-pos{font-size:10px;font-weight:700;color:var(--txt4);width:16px;flex-shrink:0;text-align:center}
+.rank-pos.gold{color:#F59E0B}
+.rank-pos.silver{color:var(--txt3)}
+.rank-pos.bronze{color:#CD7C2F}
+.rank-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.rank-info{flex:1;min-width:0}
+.rank-name{font-size:12px;font-weight:500;color:var(--txt1)}
+.rank-meta{font-size:10px;color:var(--txt3)}
+.rank-score{font-size:14px;font-weight:700;color:var(--purple2)}
+.rank-badge{font-size:9px;font-weight:600;color:var(--amber)}
+
+/* ALERT */
+.alert-list{display:flex;flex-direction:column;gap:0}
+.alert-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.alert-row:last-child{border:none}
+.alert-row:hover{opacity:0.85}
+.alert-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-body{flex:1}
+.alert-title{font-size:12px;font-weight:500;color:var(--txt1)}
+.alert-meta{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* MINI CHART */
+.chart-wrap{position:relative;height:120px;margin-top:4px}
+.chart-bars{display:flex;align-items:flex-end;gap:4px;height:100%}
+.cbar{flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:height 0.4s ease;cursor:pointer;position:relative}
+.cbar:hover{opacity:0.85}
+.cbar-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--txt3);white-space:nowrap}
+.line-chart{position:relative;height:80px}
+.line-chart svg{width:100%;height:100%}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:16px}
+.donut-svg{width:80px;height:80px;flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:6px}
+.donut-item{display:flex;align-items:center;gap:6px;font-size:11px}
+.donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.donut-name{color:var(--txt2);flex:1}
+.donut-val{font-weight:600;color:var(--txt1)}
+
+/* HUB CARDS */
+.hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.hub-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all 0.15s}
+.hub-card:hover{border-color:var(--border2);background:var(--bg3);transform:translateY(-1px)}
+.hub-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.hub-icon svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hub-title{font-size:12.5px;font-weight:600;color:var(--txt1);margin-bottom:3px}
+.hub-desc{font-size:10.5px;color:var(--txt3);line-height:1.4}
+
+/* LINKS */
+.links-section{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.links-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.links-title{font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:0.7px}
+.brand-tabs{display:flex;gap:5px}
+.brand-tab{font-size:11px;font-weight:500;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--txt3);cursor:pointer;transition:all 0.1s;font-family:var(--font)}
+.brand-tab.active{background:var(--purple-bg2);color:var(--purple2);border-color:rgba(123,110,246,0.3)}
+.links-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.link-item{display:flex;align-items:center;gap:7px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all 0.1s;text-decoration:none}
+.link-item:hover{border-color:var(--border2);background:var(--bg4)}
+.link-item svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;color:var(--txt3)}
+.link-item-text{display:flex;flex-direction:column}
+.link-item-name{font-size:11.5px;font-weight:500;color:var(--txt1)}
+.link-item-cat{font-size:9px;color:var(--txt3)}
+
+/* DASHBOARD GRID */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.15s}
+.dash-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.dash-preview{height:90px;display:flex;align-items:flex-end;padding:10px;gap:4px;background:var(--bg1);position:relative;overflow:hidden}
+.dash-preview::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--bg1) 0%,transparent 60%)}
+.dbar{flex:1;border-radius:3px 3px 0 0;min-height:4px}
+.dash-info{padding:10px 12px}
+.dash-name{font-size:12px;font-weight:600;color:var(--txt1);margin-bottom:2px}
+.dash-desc{font-size:10px;color:var(--txt3)}
+.dash-tag{font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;background:var(--purple-bg);color:var(--purple)}
+
+/* USERS */
+.users-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.user-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px}
+.user-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.user-card-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.user-card-name{font-size:12px;font-weight:600;color:var(--txt1)}
+.user-card-email{font-size:10px;color:var(--txt3)}
+.user-card-stats{display:flex;gap:6px;flex-wrap:wrap}
+.user-stat{font-size:10px;padding:2px 7px;border-radius:5px;background:var(--bg3);color:var(--txt2);border:1px solid var(--border)}
+
+/* JOBS */
+.jobs-list{display:flex;flex-direction:column;gap:6px}
+.job-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
+.job-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.job-status.ok{background:var(--teal)}
+.job-status.warn{background:var(--amber)}
+.job-status.err{background:var(--coral)}
+.job-info{flex:1}
+.job-name{font-size:12px;font-weight:500;color:var(--txt1)}
+.job-freq{font-size:10px;color:var(--txt3)}
+.job-last{font-size:10px;color:var(--txt3);white-space:nowrap}
+.job-type{font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--bg3);color:var(--txt3);border:1px solid var(--border);flex-shrink:0}
+
+/* IA FIELD */
+.ia-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px}
+.ia-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ia-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--purple3),var(--teal));display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ia-icon svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ia-title{font-size:13px;font-weight:600;color:var(--txt1)}
+.ia-subtitle{font-size:10px;color:var(--txt3)}
+.ia-field{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--txt1);font-size:12px;font-family:var(--font);resize:none;height:60px;transition:border-color 0.15s}
+.ia-field:focus{outline:none;border-color:var(--purple)}
+.ia-field::placeholder{color:var(--txt4)}
+.ia-actions{display:flex;gap:8px;margin-top:8px}
+.ia-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;font-family:var(--font);border:none;transition:all 0.15s}
+.ia-btn-primary{background:linear-gradient(135deg,var(--purple3),var(--purple));color:#fff}
+.ia-btn-primary:hover{opacity:0.9}
+.ia-btn-secondary{background:var(--bg3);color:var(--txt2);border:1px solid var(--border)}
+.ia-btn-secondary:hover{color:var(--txt1);border-color:var(--border2)}
+.ia-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ia-response{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:10px;font-size:12px;color:var(--txt1);line-height:1.6;display:none}
+.ia-response.visible{display:block}
+.ia-response-label{font-size:9px;font-weight:600;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+
+/* NOTIFICADORES */
+.notif-list{display:flex;flex-direction:column;gap:8px}
+.notif-row{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.notif-channel{font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;background:var(--purple-bg);color:var(--purple2);flex-shrink:0;min-width:110px;text-align:center}
+.notif-info{flex:1}
+.notif-name{font-size:12px;font-weight:500;color:var(--txt1)}
+.notif-desc{font-size:10px;color:var(--txt3);margin-top:1px}
+.notif-freq{font-size:10px;font-weight:500;color:var(--txt3);flex-shrink:0}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--teal);position:relative;cursor:pointer;flex-shrink:0}
+.toggle::after{content:'';position:absolute;right:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff}
+.toggle.off{background:var(--bg4)}
+.toggle.off::after{right:auto;left:3px}
+
+/* CUSTOS */
+.cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.cost-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.cost-label{font-size:10px;color:var(--txt3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.cost-value{font-size:20px;font-weight:700;color:var(--txt1)}
+.cost-sub{font-size:10px;color:var(--txt3);margin-top:2px}
+
+/* RA */
+.ra-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ra-brand{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.ra-brand-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ra-brand-name{font-size:13px;font-weight:600;color:var(--txt1)}
+.ra-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ra-stat{background:var(--bg3);border-radius:7px;padding:8px 10px}
+.ra-stat-lbl{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
+.ra-stat-val{font-size:16px;font-weight:700;color:var(--txt1)}
+
+/* CANAIS */
+.canais-list{display:flex;flex-direction:column;gap:6px}
+.canal-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px}
+.canal-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.canal-icon svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.canal-info{flex:1}
+.canal-name{font-size:12px;font-weight:500;color:var(--txt1)}
+.canal-detail{font-size:10px;color:var(--txt3)}
+.canal-val{font-size:16px;font-weight:700;color:var(--txt1);flex-shrink:0}
+
+/* SETTINGS */
+.settings-section{margin-bottom:20px}
+.settings-title{font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border:none}
+.settings-info{flex:1}
+.settings-label{font-size:12px;font-weight:500;color:var(--txt1)}
+.settings-desc{font-size:10px;color:var(--txt3);margin-top:2px}
+.settings-action{flex-shrink:0;margin-left:16px}
+.settings-input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--txt1);font-size:12px;font-family:var(--font);width:200px}
+.settings-input:focus{outline:none;border-color:var(--purple)}
+.btn-sm{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font);border:1px solid var(--border);background:var(--bg3);color:var(--txt2);transition:all 0.1s}
+.btn-sm:hover{border-color:var(--purple);color:var(--purple)}
+.btn-primary{background:var(--purple3);color:#fff;border-color:var(--purple3)}
+.btn-primary:hover{background:var(--purple);border-color:var(--purple);color:#fff}
+.theme-toggle{display:flex;gap:6px}
+.theme-opt{padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--txt3);font-family:var(--font)}
+.theme-opt.active{background:var(--purple-bg2);color:var(--purple2);border-color:rgba(123,110,246,0.3)}
+
+/* SCORE BARRA */
+.score-bar{display:flex;align-items:center;gap:6px}
+.score-num{font-size:12px;font-weight:700;min-width:28px}
+.score-bg{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.score-fill{height:100%;border-radius:3px}
+
+/* SECTION ROW */
+.section-row{display:flex;gap:12px;margin-bottom:12px}
+.section-row>.card{flex:1}
+.section-row>.tbl-wrap{flex:2}
+
+/* STEP INDICATOR */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-heading{font-size:15px;font-weight:600;color:var(--txt1)}
+.section-sub{font-size:11px;color:var(--txt3);margin-top:2px}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txt3);margin-bottom:16px}
+.breadcrumb span{color:var(--txt1)}
+
+/* DASH PANELS */
+.dash-panel{display:none}
+.dash-panel.active{display:block}
+
+/* SPARKLINE */
+.sparkline{display:flex;align-items:flex-end;gap:2px;height:30px}
+.sp-bar{width:4px;border-radius:2px;min-height:2px}
+
+/* NOTIFICATION BADGE */
+.notif-indicator{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--coral);border:1.5px solid var(--bg1)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <div class="logo-name">CORTEX</div>
+        <div class="logo-tagline">VERTEX IA · OPS</div>
+      </div>
+    </div>
+    <div class="marca-wrap">
+      <div class="marca-label">Marca ativa</div>
+      <select class="marca-select" onchange="setMarca(this.value)" id="marca-global">
+        <option value="todas">Todas as marcas</option>
+        <option value="BRAND ALPHA">BRAND ALPHA</option>
+        <option value="BRAND BETA">BRAND BETA</option>
+        <option value="BRAND GAMMA">BRAND GAMMA</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-grp">
+      <div class="nav-grp-label">Principal</div>
+      <div class="nav-item active" onclick="go('visao',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Visão Geral</div>
+      <div class="nav-item" onclick="go('hub',this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>Hub CS / AFO</div>
+    </div>
+    <div class="nav-grp">
+      <div class="nav-grp-label">Monitoria</div>
+      <div class="nav-item" onclick="go('monitoria',this)"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Monitoria IA<span class="nav-badge">12</span></div>
+      <div class="nav-item" onclick="go('cases',this)"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Cases</div>
+      <div class="nav-item" onclick="go('revisoes',this)"><svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M11 18H8a2 2 0 0 1-2-2V9"/></svg>Revisões<span class="nav-badge">3</span></div>
+    </div>
+    <div class="nav-grp">
+      <div class="nav-grp-label">Análise</div>
+      <div class="nav-item" onclick="go('dashboards',this)"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Dashboards</div>
+      <div class="nav-item" onclick="go('reclame',this)"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Reclame Aqui</div>
+      <div class="nav-item" onclick="go('canais',this)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Canais Externos</div>
+      <div class="nav-item" onclick="go('jira',this)"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Jira / Tarefas</div>
+      <div class="nav-item" onclick="go('ia',this)"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><circle cx="18" cy="5" r="3"/></svg>Análise IA<span class="nav-badge blue">BETA</span></div>
+      <div class="nav-item" onclick="go('custos',this)"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Custos IA</div>
+    </div>
+    <div class="nav-grp">
+      <div class="nav-grp-label">Sistema</div>
+      <div class="nav-item" onclick="go('usuarios',this)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Usuários</div>
+      <div class="nav-item" onclick="go('jobs',this)"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Conectores & Jobs</div>
+      <div class="nav-item" onclick="go('settings',this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41"/></svg>Configurações</div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-av" style="background:linear-gradient(135deg,#7B6EF6,#22D3A8)">DM</div>
+      <div class="user-info">
+        <div class="user-name">Diego M.</div>
+        <div class="user-role">N3 Global · VERTEX IA</div>
+      </div>
+      <div class="user-sso">SSO</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Visão Geral</div>
+    <div class="topbar-marca" id="topbar-marca">Todas as marcas</div>
+    <div style="flex:1"></div>
+    <div class="topbar-btn"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>ago/2026</div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-btn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+    <div class="topbar-btn" onclick="go('settings',null)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41"/></svg></div>
+  </div>
+
+  <div class="content" id="content">
+
+    <!-- VISÃO GERAL -->
+    <div class="screen active" id="screen-visao">
+      <div class="breadcrumb">CORTEX <span>/ Visão Geral</span></div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:10px">
+        <div class="kpi" style="--accent:var(--teal)"><div class="kpi-label">CSAT %</div><div class="kpi-value">82.6%</div><div class="kpi-delta up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>+1.2% vs P.A.</div><div class="kpi-sub">Justificado: 86.4%</div></div>
+        <div class="kpi" style="--accent:var(--purple)"><div class="kpi-label">Score Monitoria</div><div class="kpi-value">9.7</div><div class="kpi-delta up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>+0.1 vs P.A.</div><div class="kpi-sub">Cobertura: 77.6%</div></div>
+        <div class="kpi" style="--accent:var(--amber)"><div class="kpi-label">FCR</div><div class="kpi-value">67.9%</div><div class="kpi-delta warn"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>Abaixo da meta</div><div class="kpi-sub">Meta: ≥75%</div></div>
+        <div class="kpi" style="--accent:var(--coral)"><div class="kpi-label">Infrações</div><div class="kpi-value">82</div><div class="kpi-delta down"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>25 graves</div><div class="kpi-sub">Revisões: 3</div></div>
+      </div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:16px">
+        <div class="kpi"><div class="kpi-label">TMPR</div><div class="kpi-value">1m 43s</div><div class="kpi-delta up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>-27s vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">Conversão</div><div class="kpi-value">6.6%</div><div class="kpi-delta down"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>-4.2% vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">ReclameAqui</div><div class="kpi-value">20</div><div class="kpi-delta warn"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>Score: 65.9</div></div>
+        <div class="kpi"><div class="kpi-label">Tarefas Jira</div><div class="kpi-value">647</div><div class="kpi-delta down"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>Abertas: 125</div></div>
+      </div>
+      <div class="grid-2" style="margin-bottom:12px">
+        <div class="card">
+          <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Ranking Analistas — Score Geral</div></div>
+          <div class="rank-list">
+            <div class="rank-row"><div class="rank-pos gold">1</div><div class="rank-av" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">GS</div><div class="rank-info"><div class="rank-name">Gabriel Silva</div><div class="rank-meta">N3 · CS · Diurno · PARCEIRO A</div></div><div class="rank-score">10.0</div></div>
+            <div class="rank-row"><div class="rank-pos silver">2</div><div class="rank-av" style="background:linear-gradient(135deg,#60A5FA,#7B6EF6)">MO</div><div class="rank-info"><div class="rank-name">Mariana Oliveira</div><div class="rank-meta">N3 · CS · Diurno · PARCEIRO A</div></div><div class="rank-score">9.83</div></div>
+            <div class="rank-row"><div class="rank-pos silver">3</div><div class="rank-av" style="background:linear-gradient(135deg,#22D3A8,#3B82F6)">LS</div><div class="rank-info"><div class="rank-name">Lucas Souza</div><div class="rank-meta">N1 · CS · Diurno · PARCEIRO B</div></div><div class="rank-score">9.83</div></div>
+            <div class="rank-row"><div class="rank-pos bronze">4</div><div class="rank-av" style="background:linear-gradient(135deg,#F59E0B,#22D3A8)">FA</div><div class="rank-info"><div class="rank-name">Felipe Alves</div><div class="rank-meta">N2 · CS · Noturno · VERTEX IA</div></div><div class="rank-score">9.60</div></div>
+            <div class="rank-row"><div class="rank-pos">5</div><div class="rank-av" style="background:linear-gradient(135deg,#A78BFA,#EC4899)">BC</div><div class="rank-info"><div class="rank-name">Beatriz Costa</div><div class="rank-meta">N1 · CS · Intermediário · PARCEIRO B</div></div><div class="rank-score">9.58</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Infrações por Pilar — ago/26</div></div>
+          <div class="bar-chart">
+            <div class="bar-row"><div class="bar-lbl">Fundamentos</div><div class="bar-bg"><div class="bar-fill" style="width:65%;background:var(--purple)"></div></div><div class="bar-val">47</div></div>
+            <div class="bar-row"><div class="bar-lbl">Qualidade</div><div class="bar-bg"><div class="bar-fill" style="width:35%;background:var(--teal)"></div></div><div class="bar-val">25</div></div>
+            <div class="bar-row"><div class="bar-lbl">Conformidade</div><div class="bar-bg"><div class="bar-fill" style="width:14%;background:var(--coral)"></div></div><div class="bar-val">10</div></div>
+          </div>
+          <div style="margin-top:14px">
+            <div class="card-title" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Score por Marca</div>
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-lbl">BRAND GAMMA</div><div class="bar-bg"><div class="bar-fill" style="width:98%;background:var(--purple)"></div></div><div class="bar-val">9.8</div></div>
+              <div class="bar-row"><div class="bar-lbl">BRAND ALPHA</div><div class="bar-bg"><div class="bar-fill" style="width:82%;background:var(--teal)"></div></div><div class="bar-val">8.2</div></div>
+              <div class="bar-row"><div class="bar-lbl">BRAND BETA</div><div class="bar-bg"><div class="bar-fill" style="width:76%;background:var(--amber)"></div></div><div class="bar-val">7.6</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Alertas Ativos</div><div class="card-action">Ver todos</div></div>
+          <div class="alert-list">
+            <div class="alert-row"><div class="alert-dot" style="background:var(--coral)"></div><div class="alert-body"><div class="alert-title">Alerta de SLA - BRAND BETA</div><div class="alert-meta">ID 215475410596591 · Denis V. · há 2h · CRÍTICO</div></div></div>
+            <div class="alert-row"><div class="alert-dot" style="background:var(--coral)"></div><div class="alert-body"><div class="alert-title">Inconsistência de Fluxo - ID-1033</div><div class="alert-meta">ID 215475404031419 · Bruno S. · há 3h · CRÍTICO</div></div></div>
+            <div class="alert-row"><div class="alert-dot" style="background:var(--amber)"></div><div class="alert-body"><div class="alert-title">CSAT baixo + infração grave</div><div class="alert-meta">ID 215475388933174 · Henrique P. · há 4h</div></div></div>
+            <div class="alert-row"><div class="alert-dot" style="background:var(--purple)"></div><div class="alert-body"><div class="alert-title">3 revisões aguardando análise</div><div class="alert-meta">REV-001, REV-002, REV-003 · pendentes</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Jobs em Execução</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[ALPHA] Sync Download Base</div><div class="job-freq">A cada 6h · 4x/dia</div></div><div class="job-last">há 2m</div><div class="job-type">CRON</div></div>
+            <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[BETA] Sync Download Base</div><div class="job-freq">A cada 6h · 4x/dia</div></div><div class="job-last">há 8m</div><div class="job-type">CRON</div></div>
+            <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Monitoria Auto] Auditoria ALPHA</div><div class="job-freq">A cada 8h · 3x/dia</div></div><div class="job-last">há 1h</div><div class="job-type">CRON</div></div>
+            <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Jira] Sync Delta 12h</div><div class="job-freq">2x/dia · 08:00 e 20:00</div></div><div class="job-last">há 3h</div><div class="job-type">CRON</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUB -->
+    <div class="screen" id="screen-hub">
+      <div class="breadcrumb">CORTEX <span>/ Hub CS & AFO</span></div>
+      <div class="hub-grid">
+        <div class="hub-card" onclick="go('monitoria',null)"><div class="hub-icon" style="background:var(--purple-bg2);color:var(--purple2)"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="hub-title">Monitoria IA</div><div class="hub-desc">Auditoria automática — 12 pendentes</div></div>
+        <div class="hub-card" onclick="go('cases',null)"><div class="hub-icon" style="background:var(--teal-bg);color:var(--teal)"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><div class="hub-title">Cases de Atendimento</div><div class="hub-desc">3.489 conversas · ago/26</div></div>
+        <div class="hub-card" onclick="go('revisoes',null)"><div class="hub-icon" style="background:var(--blue-bg);color:var(--blue)"><svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M11 18H8a2 2 0 0 1-2-2V9"/></svg></div><div class="hub-title">Revisões</div><div class="hub-desc">3 aguardando análise</div></div>
+        <div class="hub-card" onclick="go('dashboards',null)"><div class="hub-icon" style="background:var(--amber-bg);color:var(--amber)"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="hub-title">Dashboards</div><div class="hub-desc">13 painéis operacionais</div></div>
+        <div class="hub-card" onclick="go('reclame',null)"><div class="hub-icon" style="background:var(--coral-bg);color:var(--coral)"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="hub-title">Reclame Aqui</div><div class="hub-desc">20 casos · Score 65.9</div></div>
+        <div class="hub-card" onclick="go('jira',null)"><div class="hub-icon" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="hub-title">Jira / Tarefas</div><div class="hub-desc">647 tarefas · 125 abertas</div></div>
+      </div>
+      <div class="links-section">
+        <div class="links-top">
+          <div class="links-title">Links Rápidos por Marca</div>
+          <div class="brand-tabs">
+            <button class="brand-tab active" onclick="setLinkBrand('alpha',this)">BRAND ALPHA</button>
+            <button class="brand-tab" onclick="setLinkBrand('beta',this)">BRAND BETA</button>
+            <button class="brand-tab" onclick="setLinkBrand('gamma',this)">BRAND GAMMA</button>
+            <button class="brand-tab" onclick="setLinkBrand('geral',this)">GERAL</button>
+          </div>
+        </div>
+        <div class="links-grid" id="links-grid">
+          <a class="link-item" href="https://app.intercom.com" target="_blank"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div class="link-item-text"><div class="link-item-name">Intercom BRAND ALPHA</div><div class="link-item-cat">Atendimento</div></div></a>
+          <a class="link-item" href="https://orion.atlassian.net/jira/software/projects/CSALPHA/boards/35" target="_blank"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><div class="link-item-text"><div class="link-item-name">Jira CS BRAND ALPHA</div><div class="link-item-cat">CSALPHA — Board</div></div></a>
+          <a class="link-item" href="https://orion.atlassian.net/jira/software/projects/PMALPHA/boards/33" target="_blank"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><div class="link-item-text"><div class="link-item-name">Jira AFO BRAND ALPHA</div><div class="link-item-cat">PMALPHA — Board</div></div></a>
+          <a class="link-item" href="https://brand-alpha.com/" target="_blank"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><div class="link-item-text"><div class="link-item-name">Site BRAND ALPHA</div><div class="link-item-cat">brand-alpha.com</div></div></a>
+          <a class="link-item" href="https://orion.atlassian.net/wiki/spaces/CSP" target="_blank"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><div class="link-item-text"><div class="link-item-name">Confluence CS</div><div class="link-item-cat">Base Procedimentos</div></div></a>
+          <a class="link-item" href="https://app.intercom.com/a/apps/APP_ID/reports/custom-reports/report/0000000" target="_blank"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><div class="link-item-text"><div class="link-item-name">Métricas Intercom</div><div class="link-item-cat">Dashboard Intercom</div></div></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MONITORIA -->
+    <div class="screen" id="screen-monitoria">
+      <div class="breadcrumb">CORTEX <span>/ Monitoria IA</span></div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Score Geral</div><div class="kpi-value">9.7</div><div class="kpi-delta up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+0.1 vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">Auditados</div><div class="kpi-value">368</div><div class="kpi-delta down"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>-8.7% vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">CSAT Just.</div><div class="kpi-value">86.4%</div><div class="kpi-delta up"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+7.1% vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">Infrações</div><div class="kpi-value">82</div><div class="kpi-delta warn"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>25 graves, 0 m.graves</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-header">
+          <div class="tbl-title">Atendimentos Auditados</div>
+          <div class="tbl-filters">
+            <select class="tbl-filter"><option>Todas as marcas</option><option>BRAND ALPHA</option><option>BRAND BETA</option><option>BRAND GAMMA</option></select>
+            <select class="tbl-filter"><option>Todos os analistas</option><option>Gabriel</option><option>Mariana</option><option>Beatriz</option><option>Denis</option></select>
+            <select class="tbl-filter"><option>Todas gravidades</option><option>Baixa</option><option>Média</option><option>Grave</option><option>Muito Grave</option></select>
+            <input class="tbl-search" placeholder="Buscar ID...">
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Marca</th><th>Analista</th><th>Score</th><th>Fundamentos</th><th>Qualidade</th><th>Conformidade</th><th>Infrações</th><th>CSAT Just.</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">215475410596591</td><td><span class="pill pill-teal">BRAND BETA</span></td><td>Denis V.</td><td><strong>9.8</strong></td><td>9.9</td><td>9.8</td><td>9.8</td><td><span class="pill pill-gray">Escuta Ativa</span></td><td><span class="pill pill-teal">Aprovado</span></td><td><span class="pill pill-teal">Auditado</span></td></tr>
+            <tr><td class="mono">215475475835104</td><td><span class="pill pill-amber">BRAND ALPHA</span></td><td>Mariana O.</td><td><strong style="color:var(--coral)">7.2</strong></td><td>6.5</td><td>9.0</td><td>9.0</td><td><span class="pill pill-coral">Resolutividade</span></td><td><span class="pill pill-coral">Negado</span></td><td><span class="pill pill-coral">Infração grave</span></td></tr>
+            <tr><td class="mono">215475543234317</td><td><span class="pill pill-purple">BRAND GAMMA</span></td><td>Felipe A.</td><td><strong>9.6</strong></td><td>9.9</td><td>9.9</td><td>9.0</td><td><span class="pill pill-gray">—</span></td><td><span class="pill pill-teal">Aprovado</span></td><td><span class="pill pill-teal">Auditado</span></td></tr>
+            <tr><td class="mono">215475388933174</td><td><span class="pill pill-teal">BRAND BETA</span></td><td>Henrique P.</td><td><strong>8.5</strong></td><td>9.0</td><td>8.5</td><td>8.0</td><td><span class="pill pill-amber">Prazos</span></td><td><span class="pill pill-coral">Negado</span></td><td><span class="pill pill-amber">Em revisão</span></td></tr>
+            <tr><td class="mono">215475213906567</td><td><span class="pill pill-amber">BRAND ALPHA</span></td><td>Lucas S.</td><td><strong>9.7</strong></td><td>9.8</td><td>9.8</td><td>9.4</td><td><span class="pill pill-gray">—</span></td><td><span class="pill pill-gray">—</span></td><td><span class="pill pill-teal">Auditado</span></td></tr>
+            <tr><td class="mono">215475494541415</td><td><span class="pill pill-teal">BRAND BETA</span></td><td>Denis V.</td><td><strong>9.5</strong></td><td>9.9</td><td>9.9</td><td>8.5</td><td><span class="pill pill-amber">Conformidade</span></td><td><span class="pill pill-teal">Aprovado</span></td><td><span class="pill pill-teal">Auditado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CASES -->
+    <div class="screen" id="screen-cases">
+      <div class="breadcrumb">CORTEX <span>/ Cases de Atendimento</span></div>
+      <div class="kpi-grid kpi-grid-5" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Compliance / Risk</div><div class="kpi-value" style="color:var(--coral)">12</div><div class="kpi-delta down">Crítico</div></div>
+        <div class="kpi"><div class="kpi-label">Financeiro</div><div class="kpi-value" style="color:var(--amber)">847</div><div class="kpi-delta warn">Alta prioridade</div></div>
+        <div class="kpi"><div class="kpi-label">Conta/Segurança</div><div class="kpi-value" style="color:var(--blue)">234</div><div class="kpi-delta"><span>Média</span></div></div>
+        <div class="kpi"><div class="kpi-label">Marketing/Bônus</div><div class="kpi-value" style="color:var(--teal)">156</div><div class="kpi-delta"><span>Normal</span></div></div>
+        <div class="kpi"><div class="kpi-label">Total Conversas</div><div class="kpi-value">3.489</div><div class="kpi-delta"><span>ago/26</span></div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-header">
+          <div class="tbl-title">Cases Recentes</div>
+          <div class="tbl-filters">
+            <select class="tbl-filter"><option>Todas as categorias</option><option>Compliance / Risk</option><option>Financeiro</option><option>Conta e Segurança</option><option>Marketing e Bônus</option></select>
+            <input class="tbl-search" placeholder="Buscar ID ou topic...">
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Marca</th><th>Categoria</th><th>Intenção Principal</th><th>Sentimento</th><th>Risco Churn</th><th>Flags</th><th>Jira</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">215475410596591</td><td><span class="pill pill-teal">BRAND BETA</span></td><td><span class="pill pill-coral">Compliance / Risk</span></td><td>Alerta de SLA - BRAND BETA — Inconsistência de Fluxo - ID-1033</td><td><span class="pill pill-coral">Furioso</span></td><td><span class="pill pill-coral">CRÍTICO</span></td><td>⚠ Alerta de SLA</td><td><a href="https://orion.atlassian.net/browse/CSBETA-1033" target="_blank" style="color:var(--purple);font-size:11px">CSBETA-1033</a></td></tr>
+            <tr><td class="mono">215475475835104</td><td><span class="pill pill-amber">BRAND ALPHA</span></td><td><span class="pill pill-amber">Financeiro</span></td><td>Saque não processado</td><td><span class="pill pill-amber">Frustrado</span></td><td><span class="pill pill-amber">Alto</span></td><td>—</td><td>—</td></tr>
+            <tr><td class="mono">215475543234317</td><td><span class="pill pill-purple">BRAND GAMMA</span></td><td><span class="pill pill-blue">Conta e Segurança</span></td><td>KYC rejeitado provedor</td><td><span class="pill pill-amber">Ansioso</span></td><td><span class="pill pill-blue">Médio</span></td><td>—</td><td>—</td></tr>
+            <tr><td class="mono">215475388933174</td><td><span class="pill pill-teal">BRAND BETA</span></td><td><span class="pill pill-purple">Marketing e Bônus</span></td><td>Rollover informado errado</td><td><span class="pill pill-gray">Resignado</span></td><td><span class="pill pill-teal">Baixo</span></td><td>—</td><td>—</td></tr>
+            <tr><td class="mono">215475404031419</td><td><span class="pill pill-teal">BRAND BETA</span></td><td><span class="pill pill-coral">Compliance / Risk</span></td><td>Bloqueio Inconsistência de Fluxo - ID-1033</td><td><span class="pill pill-coral">Furioso</span></td><td><span class="pill pill-coral">CRÍTICO</span></td><td>⚠ Alerta de SLA</td><td><a href="https://orion.atlassian.net/browse/CSBETA-1033" target="_blank" style="color:var(--purple);font-size:11px">CSBETA-1033</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REVISÕES -->
+    <div class="screen" id="screen-revisoes">
+      <div class="breadcrumb">CORTEX <span>/ Revisões</span></div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Total Revisões</div><div class="kpi-value">47</div><div class="kpi-delta"><span>ago/26</span></div></div>
+        <div class="kpi"><div class="kpi-label">Pendentes</div><div class="kpi-value" style="color:var(--amber)">3</div><div class="kpi-delta warn">Aguardando IA</div></div>
+        <div class="kpi"><div class="kpi-label">Precisa Humano</div><div class="kpi-value" style="color:var(--coral)">2</div><div class="kpi-delta down">Ação necessária</div></div>
+        <div class="kpi"><div class="kpi-label">Concluídas IA</div><div class="kpi-value" style="color:var(--teal)">42</div><div class="kpi-delta up">89% taxa resolução</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-header">
+          <div class="tbl-title">Fila de Revisões</div>
+          <div class="tbl-filters">
+            <select class="tbl-filter"><option>Todas</option><option>Pendente IA</option><option>Precisa Humano</option><option>Concluída IA</option><option>Concluída Humana</option></select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Atendimento</th><th>Marca</th><th>Tipo</th><th>Pilar</th><th>Solicitante</th><th>Status</th><th>Motivo</th><th>Ação</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">REV-001</td><td class="mono">215475410596591</td><td><span class="pill pill-teal">BRAND BETA</span></td><td>Remover Infração</td><td>Fundamentos</td><td>Mariana O.</td><td><span class="pill pill-amber">Pendente IA</span></td><td>Não concordo com Resolutividade</td><td><button class="btn-sm btn-primary" style="font-size:10px">Analisar</button></td></tr>
+            <tr><td class="mono">REV-002</td><td class="mono">215475475835104</td><td><span class="pill pill-amber">BRAND ALPHA</span></td><td>Contestação Abono</td><td>CSAT Just.</td><td>Lucas S.</td><td><span class="pill pill-coral">Precisa Humano</span></td><td>Abono negado — fator externo</td><td><button class="btn-sm" style="font-size:10px;color:var(--coral);border-color:var(--coral)">Decidir</button></td></tr>
+            <tr><td class="mono">REV-003</td><td class="mono">215475543234317</td><td><span class="pill pill-purple">BRAND GAMMA</span></td><td>Reduzir Gravidade</td><td>Qualidade</td><td>Beatriz C.</td><td><span class="pill pill-teal">Concluída IA</span></td><td>Termos a Evitar → Baixa</td><td><button class="btn-sm" style="font-size:10px">Ver</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DASHBOARDS -->
+    <div class="screen" id="screen-dashboards">
+      <div class="breadcrumb">CORTEX <span>/ Dashboards</span></div>
+
+      <!-- NAV TABS DASHBOARDS -->
+      <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap" id="dash-tabs">
+        <button class="brand-tab active" onclick="showDash('visao-exec',this)">Visão Geral</button>
+        <button class="brand-tab" onclick="showDash('metricas',this)">Métricas CS</button>
+        <button class="brand-tab" onclick="showDash('monitoria-dash',this)">Monitoria</button>
+        <button class="brand-tab" onclick="showDash('painel-audit',this)">Painel Auditoria</button>
+        <button class="brand-tab" onclick="showDash('volumetria',this)">Volumetria</button>
+        <button class="brand-tab" onclick="showDash('reclame-dash',this)">Reclame Aqui</button>
+        <button class="brand-tab" onclick="showDash('reincidencias',this)">Reincidências</button>
+        <button class="brand-tab" onclick="showDash('custo-ia',this)">Custo IA</button>
+        <button class="brand-tab" onclick="showDash('atlassian-dash',this)">Atlassian</button>
+      </div>
+
+      <!-- 1. VISÃO GERAL EXECUTIVA -->
+      <div class="dash-panel active" id="dash-visao-exec">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div><div style="font-size:14px;font-weight:600;color:var(--txt1)">Visão Geral Executiva</div><div style="font-size:11px;color:var(--txt3)">KPIs consolidados — todas as marcas · ago/2026</div></div>
+          <div style="display:flex;gap:8px"><select class="tbl-filter">option>Todas as marcas</option><option>BRAND ALPHA</option><option>BRAND BETA</option><option>BRAND GAMMA</option></select><select class="tbl-filter"><option>ago/2026</option><option>jul/2026</option><option>jun/2026</option></select></div>
+        </div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:12px">
+          <div class="kpi"><div class="kpi-label">Conversão</div><div class="kpi-value">6.6%</div><div class="kpi-delta down">▼ -4.2% vs P.A. · Avals: 23</div></div>
+          <div class="kpi"><div class="kpi-label">CSAT %</div><div class="kpi-value">82.6%</div><div class="kpi-delta up">▲ +6.1% vs P.A. · Just: 86.4%</div></div>
+          <div class="kpi"><div class="kpi-label">TMPR</div><div class="kpi-value">1m 45s</div><div class="kpi-delta up">▲ +6s vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">Score Monitoria</div><div class="kpi-value">9.7</div><div class="kpi-delta up">▲ +0.1 · Auditorias: 4033</div></div>
+        </div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Conversas</div><div class="kpi-value">3.489</div><div class="kpi-delta">Humano: 3 Mil · Reincid: 481</div></div>
+          <div class="kpi"><div class="kpi-label">Ocorrências</div><div class="kpi-value">19</div><div class="kpi-delta up">▲ +3 vs P.A. · Ativas: 2</div></div>
+          <div class="kpi"><div class="kpi-label">ReclameAqui</div><div class="kpi-value">20</div><div class="kpi-delta down">▼ -25 vs P.A. · Score RA: 65.9</div></div>
+          <div class="kpi"><div class="kpi-label">Infrações</div><div class="kpi-value">923</div><div class="kpi-delta down">Graves: 252 · M.Graves: —</div></div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Volume e Satisfação por Mês</div></div>
+            <svg viewBox="0 0 340 120" style="width:100%;height:120px">
+              <defs><linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7B6EF6" stop-opacity=".3"/><stop offset="100%" stop-color="#7B6EF6" stop-opacity="0"/></linearGradient></defs>
+              <!-- Grid lines -->
+              <line x1="40" y1="10" x2="320" y2="10" stroke="#2A2A38" stroke-width="1"/>
+              <line x1="40" y1="35" x2="320" y2="35" stroke="#2A2A38" stroke-width="1"/>
+              <line x1="40" y1="60" x2="320" y2="60" stroke="#2A2A38" stroke-width="1"/>
+              <line x1="40" y1="85" x2="320" y2="85" stroke="#2A2A38" stroke-width="1"/>
+              <!-- Labels Y -->
+              <text x="36" y="13" fill="#6B6B85" font-size="8" text-anchor="end">5K</text>
+              <text x="36" y="38" fill="#6B6B85" font-size="8" text-anchor="end">4K</text>
+              <text x="36" y="63" fill="#6B6B85" font-size="8" text-anchor="end">3K</text>
+              <text x="36" y="88" fill="#6B6B85" font-size="8" text-anchor="end">2K</text>
+              <!-- Area -->
+              <path d="M60,72 L110,60 L160,55 L210,48 L260,42 L310,38 L310,90 L60,90 Z" fill="url(#lg1)"/>
+              <!-- Line conversas -->
+              <polyline points="60,72 110,60 160,55 210,48 260,42 310,38" fill="none" stroke="#7B6EF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Line CSAT -->
+              <polyline points="60,45 110,48 160,42 210,40 260,38 310,36" fill="none" stroke="#22D3A8" stroke-width="1.5" stroke-dasharray="4,3" stroke-linecap="round"/>
+              <!-- Dots -->
+              <circle cx="310" cy="38" r="3" fill="#7B6EF6"/>
+              <circle cx="310" cy="36" r="3" fill="#22D3A8"/>
+              <!-- X labels -->
+              <text x="60" y="105" fill="#6B6B85" font-size="8" text-anchor="middle">Mar</text>
+              <text x="110" y="105" fill="#6B6B85" font-size="8" text-anchor="middle">Abr</text>
+              <text x="160" y="105" fill="#6B6B85" font-size="8" text-anchor="middle">Mai</text>
+              <text x="210" y="105" fill="#6B6B85" font-size="8" text-anchor="middle">Jun</text>
+              <text x="260" y="105" fill="#6B6B85" font-size="8" text-anchor="middle">Jul</text>
+              <text x="310" y="105" fill="#6B6B85" font-size="8" text-anchor="middle">Ago</text>
+              <!-- Legend -->
+              <circle cx="50" cy="115" r="3" fill="#7B6EF6"/><text x="56" y="118" fill="#A8A8C0" font-size="8">Conversas</text>
+              <line x1="110" y1="115" x2="120" y2="115" stroke="#22D3A8" stroke-width="1.5" stroke-dasharray="4,3"/><text x="124" y="118" fill="#A8A8C0" font-size="8">CSAT %</text>
+            </svg>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Score Geral por Marca</div></div>
+            <!-- Barras horizontais -->
+            <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:11px;color:var(--txt2)">BRAND GAMMA</span><span style="font-size:12px;font-weight:700;color:#7B6EF6">9.8</span></div>
+                <div style="height:8px;background:var(--bg3);border-radius:4px;overflow:hidden"><div style="width:98%;height:100%;background:linear-gradient(90deg,#5A4ED4,#7B6EF6);border-radius:4px"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:11px;color:var(--txt2)">BRAND ALPHA</span><span style="font-size:12px;font-weight:700;color:#22D3A8">8.2</span></div>
+                <div style="height:8px;background:var(--bg3);border-radius:4px;overflow:hidden"><div style="width:82%;height:100%;background:linear-gradient(90deg,#0D9E75,#22D3A8);border-radius:4px"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:11px;color:var(--txt2)">BRAND BETA</span><span style="font-size:12px;font-weight:700;color:#F59E0B">7.6</span></div>
+                <div style="height:8px;background:var(--bg3);border-radius:4px;overflow:hidden"><div style="width:76%;height:100%;background:linear-gradient(90deg,#B87D0A,#F59E0B);border-radius:4px"></div></div>
+              </div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="card-title" style="margin-bottom:8px">Distribuição Infrações por Gravidade</div>
+              <div style="display:flex;gap:8px;align-items:flex-end;height:60px">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                  <div style="font-size:10px;font-weight:700;color:#F59E0B">534</div>
+                  <div style="width:100%;height:45px;background:#F59E0B;border-radius:3px 3px 0 0;opacity:0.8"></div>
+                  <div style="font-size:9px;color:var(--txt3)">Média</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                  <div style="font-size:10px;font-weight:700;color:#F06060">252</div>
+                  <div style="width:100%;height:21px;background:#F06060;border-radius:3px 3px 0 0;opacity:0.8"></div>
+                  <div style="font-size:9px;color:var(--txt3)">Grave</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                  <div style="font-size:10px;font-weight:700;color:#22D3A8">121</div>
+                  <div style="width:100%;height:10px;background:#22D3A8;border-radius:3px 3px 0 0;opacity:0.8"></div>
+                  <div style="font-size:9px;color:var(--txt3)">Baixa</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                  <div style="font-size:10px;font-weight:700;color:var(--txt4)">16</div>
+                  <div style="width:100%;height:2px;background:var(--txt4);border-radius:3px 3px 0 0;opacity:0.8"></div>
+                  <div style="font-size:9px;color:var(--txt3)">Nenhum</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Tabela executiva por marca -->
+        <div class="tbl-wrap">
+          <div class="tbl-header"><div class="tbl-title">Painel Executivo por Marca</div></div>
+          <table>
+            <thead><tr><th>Marca</th><th>Conversas</th><th>CSAT %</th><th>Ocorrências Ativas</th><th>Clientes Reincidentes</th><th>Infrações Graves</th><th>Inf. Muito Graves</th><th>Score Monitoria</th></tr></thead>
+            <tbody>
+              <tr><td><strong>BRAND BETA</strong></td><td>1.395</td><td>72.9%</td><td>—</td><td>178</td><td>93</td><td>—</td><td><strong>9.7</strong></td></tr>
+              <tr><td><strong>BRAND ALPHA</strong></td><td>1.423</td><td>83.2%</td><td>—</td><td>200</td><td>104</td><td>—</td><td><strong>9.7</strong></td></tr>
+              <tr><td><strong>BRAND GAMMA</strong></td><td>671</td><td>90.2%</td><td>2</td><td>103</td><td>55</td><td>—</td><td><strong>9.7</strong></td></tr>
+              <tr style="background:var(--bg3)"><td><strong>Total</strong></td><td><strong>3.489</strong></td><td><strong>81.6%</strong></td><td><strong>2</strong></td><td><strong>481</strong></td><td><strong>252</strong></td><td><strong>—</strong></td><td><strong>9.7</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. MÉTRICAS CS -->
+      <div class="dash-panel" id="dash-metricas">
+        <div style="font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:4px">Métricas CS</div>
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">CSAT, Conversão, TMPR, TMR, FCR, Score — ago/2026</div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Total Conversas</div><div class="kpi-value">474</div><div class="kpi-delta down">▼ -150 vs P.A. · Humano: 346</div></div>
+          <div class="kpi"><div class="kpi-label">CSAT %</div><div class="kpi-value">82.6%</div><div class="kpi-delta up">▲ +7.1% · Just: 86.4%</div></div>
+          <div class="kpi"><div class="kpi-label">TMPR</div><div class="kpi-value">1m 43s</div><div class="kpi-delta up">▲ -27s vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">FCR</div><div class="kpi-value">67.9%</div><div class="kpi-delta up">▲ +3.5% vs P.A.</div></div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">CSAT % por Marca</div></div>
+            <!-- Donut simulado com barras -->
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:50%;background:conic-gradient(#7B6EF6 0deg 297deg,#22222D 297deg);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#7B6EF6;flex-shrink:0"></div>
+                <div style="flex:1"><div style="font-size:11px;color:var(--txt2);margin-bottom:3px">BRAND ALPHA</div><div style="height:6px;background:var(--bg3);border-radius:3px"><div style="width:83%;height:100%;background:#7B6EF6;border-radius:3px"></div></div></div>
+                <div style="font-size:13px;font-weight:700;color:#7B6EF6">83.2%</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:50%;background:conic-gradient(#F59E0B 0deg 263deg,#22222D 263deg);display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
+                <div style="flex:1"><div style="font-size:11px;color:var(--txt2);margin-bottom:3px">BRAND BETA</div><div style="height:6px;background:var(--bg3);border-radius:3px"><div style="width:73%;height:100%;background:#F59E0B;border-radius:3px"></div></div></div>
+                <div style="font-size:13px;font-weight:700;color:#F59E0B">72.9%</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:50%;background:conic-gradient(#22D3A8 0deg 325deg,#22222D 325deg);display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
+                <div style="flex:1"><div style="font-size:11px;color:var(--txt2);margin-bottom:3px">BRAND GAMMA</div><div style="height:6px;background:var(--bg3);border-radius:3px"><div style="width:90%;height:100%;background:#22D3A8;border-radius:3px"></div></div></div>
+                <div style="font-size:13px;font-weight:700;color:#22D3A8">90.2%</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Conversas por Canal</div></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="bar-row"><div class="bar-lbl">Chat</div><div class="bar-bg"><div class="bar-fill" style="width:89%;background:#7B6EF6"></div></div><div class="bar-val">419</div></div>
+              <div class="bar-row"><div class="bar-lbl">E-mail</div><div class="bar-bg"><div class="bar-fill" style="width:10%;background:#22D3A8"></div></div><div class="bar-val">49</div></div>
+              <div class="bar-row"><div class="bar-lbl">Android App</div><div class="bar-bg"><div class="bar-fill" style="width:1%;background:#F59E0B"></div></div><div class="bar-val">4</div></div>
+              <div class="bar-row"><div class="bar-lbl">Instagram</div><div class="bar-bg"><div class="bar-fill" style="width:0.4%;background:#F06060"></div></div><div class="bar-val">2</div></div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="card-title" style="margin-bottom:8px">Ranking Score Métricas CS</div>
+              <div style="display:flex;flex-direction:column;gap:5px;font-size:11px">
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="width:16px;color:var(--txt4);font-size:10px">1</span><span style="flex:1;color:var(--txt1)">Gabriel</span><span style="color:var(--txt3)">CSAT 100%</span><span style="font-weight:700;color:#7B6EF6;width:36px;text-align:right">10.0</span></div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="width:16px;color:var(--txt4);font-size:10px">2</span><span style="flex:1;color:var(--txt1)">Denis</span><span style="color:var(--txt3)">CSAT 83%</span><span style="font-weight:700;color:#7B6EF6;width:36px;text-align:right">9.81</span></div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)"><span style="width:16px;color:var(--txt4);font-size:10px">3</span><span style="flex:1;color:var(--txt1)">Lucas</span><span style="color:var(--txt3)">CSAT 100%</span><span style="font-weight:700;color:#7B6EF6;width:36px;text-align:right">9.70</span></div>
+                <div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:16px;color:var(--txt4);font-size:10px">4</span><span style="flex:1;color:var(--txt1)">Felipe</span><span style="color:var(--txt3)">CSAT 100%</span><span style="font-weight:700;color:#7B6EF6;width:36px;text-align:right">9.60</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Evolução CSAT por analista -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Evolução CSAT por Analista — ago/2026</div></div>
+          <svg viewBox="0 0 660 100" style="width:100%;height:100px">
+            <line x1="40" y1="10" x2="640" y2="10" stroke="#2A2A38" stroke-width="1"/>
+            <line x1="40" y1="35" x2="640" y2="35" stroke="#2A2A38" stroke-width="1"/>
+            <line x1="40" y1="60" x2="640" y2="60" stroke="#2A2A38" stroke-width="1"/>
+            <line x1="40" y1="80" x2="640" y2="80" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3,3"/>
+            <text x="36" y="13" fill="#6B6B85" font-size="8" text-anchor="end">100%</text>
+            <text x="36" y="38" fill="#6B6B85" font-size="8" text-anchor="end">80%</text>
+            <text x="36" y="63" fill="#6B6B85" font-size="8" text-anchor="end">60%</text>
+            <text x="36" y="83" fill="#F59E0B" font-size="7" text-anchor="end">70%</text>
+            <!-- Linhas analistas -->
+            <polyline points="80,15 180,15 280,15 380,15 480,15 580,15" fill="none" stroke="#7B6EF6" stroke-width="1.5"/>
+            <polyline points="80,20 180,35 280,22 380,25 480,20 580,22" fill="none" stroke="#22D3A8" stroke-width="1.5"/>
+            <polyline points="80,30 180,28 280,35 380,30 480,32 580,28" fill="none" stroke="#F59E0B" stroke-width="1.5"/>
+            <polyline points="80,35 180,30 280,25 380,22 480,18 580,16" fill="none" stroke="#F06060" stroke-width="1.5"/>
+            <!-- Dots finais -->
+            <circle cx="580" cy="15" r="3" fill="#7B6EF6"/>
+            <circle cx="580" cy="22" r="3" fill="#22D3A8"/>
+            <circle cx="580" cy="28" r="3" fill="#F59E0B"/>
+            <circle cx="580" cy="16" r="3" fill="#F06060"/>
+            <!-- X labels -->
+            <text x="80" y="96" fill="#6B6B85" font-size="8" text-anchor="middle">Jan</text>
+            <text x="180" y="96" fill="#6B6B85" font-size="8" text-anchor="middle">Mar</text>
+            <text x="280" y="96" fill="#6B6B85" font-size="8" text-anchor="middle">Mai</text>
+            <text x="380" y="96" fill="#6B6B85" font-size="8" text-anchor="middle">Jun</text>
+            <text x="480" y="96" fill="#6B6B85" font-size="8" text-anchor="middle">Jul</text>
+            <text x="580" y="96" fill="#6B6B85" font-size="8" text-anchor="middle">Ago</text>
+            <!-- Legend -->
+            <line x1="50" y1="108" x2="62" y2="108" stroke="#7B6EF6" stroke-width="2"/><text x="65" y="111" fill="#A8A8C0" font-size="8">Gabriel</text>
+            <line x1="110" y1="108" x2="122" y2="108" stroke="#22D3A8" stroke-width="2"/><text x="125" y="111" fill="#A8A8C0" font-size="8">Rafael</text>
+            <line x1="190" y1="108" x2="202" y2="108" stroke="#F59E0B" stroke-width="2"/><text x="205" y="111" fill="#A8A8C0" font-size="8">Beatriz</text>
+            <line x1="255" y1="108" x2="267" y2="108" stroke="#F06060" stroke-width="2"/><text x="270" y="111" fill="#A8A8C0" font-size="8">Mariana</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 3. MONITORIA DASHBOARD -->
+      <div class="dash-panel" id="dash-monitoria-dash">
+        <div style="font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:4px">Monitoria</div>
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Scores, infrações, ranking e CSAT justificado — ago/2026</div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Conversas</div><div class="kpi-value">474</div><div class="kpi-delta down">▼ -150 · Humano: 346</div></div>
+          <div class="kpi"><div class="kpi-label">Conversão</div><div class="kpi-value">6.6%</div><div class="kpi-delta down">▼ -4.2% · Avals: 23</div></div>
+          <div class="kpi"><div class="kpi-label">CSAT % / Just.</div><div class="kpi-value">82.6%</div><div class="kpi-delta up">▲ +6.1% · Just: 86.4%</div></div>
+          <div class="kpi"><div class="kpi-label">Score / Auditorias</div><div class="kpi-value">9.7</div><div class="kpi-delta down">▼ -0.1 · 368 auditados</div></div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Ranking Analistas — Score Geral</div></div>
+            <table style="width:100%;font-size:11px;border-collapse:collapse">
+              <thead><tr><th style="text-align:left;padding:5px 6px;color:var(--txt3);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)">Analista</th><th style="padding:5px 6px;color:var(--txt3);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)">Cobertura</th><th style="padding:5px 6px;color:var(--txt3);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)">CSAT</th><th style="padding:5px 6px;color:var(--txt3);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)">CSAT Just.</th><th style="padding:5px 6px;color:var(--txt3);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)">Infrações</th><th style="padding:5px 6px;color:var(--txt3);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)">Score</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:5px 6px;color:var(--txt1)">Gabriel</td><td style="padding:5px 6px;text-align:center;color:var(--teal)">100%</td><td style="padding:5px 6px;text-align:center">100%</td><td style="padding:5px 6px;text-align:center">100%</td><td style="padding:5px 6px;text-align:center">0</td><td style="padding:5px 6px;text-align:center;font-weight:700;color:#7B6EF6">10.0</td></tr>
+                <tr><td style="padding:5px 6px;color:var(--txt1)">Mariana</td><td style="padding:5px 6px;text-align:center;color:var(--teal)">100%</td><td style="padding:5px 6px;text-align:center">100%</td><td style="padding:5px 6px;text-align:center">100%</td><td style="padding:5px 6px;text-align:center">6</td><td style="padding:5px 6px;text-align:center;font-weight:700;color:#7B6EF6">9.83</td></tr>
+                <tr><td style="padding:5px 6px;color:var(--txt1)">Lucas</td><td style="padding:5px 6px;text-align:center;color:var(--teal)">98%</td><td style="padding:5px 6px;text-align:center">100%</td><td style="padding:5px 6px;text-align:center">100%</td><td style="padding:5px 6px;text-align:center">6</td><td style="padding:5px 6px;text-align:center;font-weight:700;color:#7B6EF6">9.83</td></tr>
+                <tr><td style="padding:5px 6px;color:var(--txt1)">Denis</td><td style="padding:5px 6px;text-align:center;color:var(--teal)">97%</td><td style="padding:5px 6px;text-align:center">83%</td><td style="padding:5px 6px;text-align:center">83%</td><td style="padding:5px 6px;text-align:center">7</td><td style="padding:5px 6px;text-align:center;font-weight:700;color:#7B6EF6">9.81</td></tr>
+                <tr><td style="padding:5px 6px;color:var(--txt1)">Beatriz</td><td style="padding:5px 6px;text-align:center;color:var(--amber)">91%</td><td style="padding:5px 6px;text-align:center">100%</td><td style="padding:5px 6px;text-align:center">100%</td><td style="padding:5px 6px;text-align:center">8</td><td style="padding:5px 6px;text-align:center;font-weight:700;color:#7B6EF6">9.58</td></tr>
+                <tr style="background:var(--bg3)"><td style="padding:5px 6px;color:var(--txt1);font-weight:600">Total</td><td style="padding:5px 6px;text-align:center;font-weight:600;color:var(--teal)">100%</td><td style="padding:5px 6px;text-align:center;font-weight:600">83%</td><td style="padding:5px 6px;text-align:center;font-weight:600">86%</td><td style="padding:5px 6px;text-align:center;font-weight:600">82</td><td style="padding:5px 6px;text-align:center;font-weight:700;color:#7B6EF6">9.68</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Ranking Infrações</div></div>
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-lbl">Escuta Ativa</div><div class="bar-bg"><div class="bar-fill" style="width:100%;background:#7B6EF6"></div></div><div class="bar-val">24</div></div>
+              <div class="bar-row"><div class="bar-lbl">Resolutividade</div><div class="bar-bg"><div class="bar-fill" style="width:54%;background:#22D3A8"></div></div><div class="bar-val">13</div></div>
+              <div class="bar-row"><div class="bar-lbl">Termos a Evitar</div><div class="bar-bg"><div class="bar-fill" style="width:46%;background:#F59E0B"></div></div><div class="bar-val">11</div></div>
+              <div class="bar-row"><div class="bar-lbl">Prazos</div><div class="bar-bg"><div class="bar-fill" style="width:42%;background:#F06060"></div></div><div class="bar-val">10</div></div>
+              <div class="bar-row"><div class="bar-lbl">Postura</div><div class="bar-bg"><div class="bar-fill" style="width:25%;background:#60A5FA"></div></div><div class="bar-val">6</div></div>
+              <div class="bar-row"><div class="bar-lbl">Procedimento</div><div class="bar-bg"><div class="bar-fill" style="width:21%;background:#A78BFA"></div></div><div class="bar-val">5</div></div>
+              <div class="bar-row"><div class="bar-lbl">Proatividade</div><div class="bar-bg"><div class="bar-fill" style="width:17%;background:#34D399"></div></div><div class="bar-val">4</div></div>
+            </div>
+            <div style="margin-top:12px">
+              <div class="card-title" style="margin-bottom:8px">Infrações por Turno</div>
+              <div style="display:flex;gap:8px">
+                <div style="flex:1;background:var(--bg3);border-radius:7px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:#7B6EF6">42</div><div style="font-size:10px;color:var(--txt3)">Diurno</div></div>
+                <div style="flex:1;background:var(--bg3);border-radius:7px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:#F59E0B">22</div><div style="font-size:10px;color:var(--txt3)">Integral</div></div>
+                <div style="flex:1;background:var(--bg3);border-radius:7px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:#22D3A8">18</div><div style="font-size:10px;color:var(--txt3)">Noturno</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Score por Marca e Pilar</div></div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;font-size:11px;border-collapse:collapse;min-width:500px">
+              <thead><tr><th style="text-align:left;padding:7px 10px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Marca</th><th style="padding:7px 10px;color:#7B6EF6;font-size:10px;border-bottom:1px solid var(--border);text-align:center">Qualidade</th><th style="padding:7px 10px;color:#22D3A8;font-size:10px;border-bottom:1px solid var(--border);text-align:center">Fundamentos</th><th style="padding:7px 10px;color:#F59E0B;font-size:10px;border-bottom:1px solid var(--border);text-align:center">Conformidade</th><th style="padding:7px 10px;color:var(--txt2);font-size:10px;border-bottom:1px solid var(--border);text-align:center">Score Geral</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:7px 10px;font-weight:500;color:var(--txt1)">BRAND ALPHA</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#7B6EF6">9.9</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#22D3A8">9.4</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#F59E0B">9.9</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:var(--txt1)">9.7</td></tr>
+                <tr><td style="padding:7px 10px;font-weight:500;color:var(--txt1)">BRAND BETA</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#7B6EF6">9.9</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#22D3A8">9.6</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#F59E0B">9.9</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:var(--txt1)">9.7</td></tr>
+                <tr><td style="padding:7px 10px;font-weight:500;color:var(--txt1)">BRAND GAMMA</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#7B6EF6">9.9</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#22D3A8">9.2</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#F59E0B">10.0</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:var(--txt1)">9.7</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. PAINEL AUDITORIA -->
+      <div class="dash-panel" id="dash-painel-audit">
+        <div style="font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:4px">Painel de Auditoria</div>
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Atendimentos auditados com drill-down completo — ago/2026</div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Marca</div><div class="kpi-value" style="font-size:15px">Múltiplos</div></div>
+          <div class="kpi"><div class="kpi-label">Canal</div><div class="kpi-value" style="font-size:15px">Múltiplos</div></div>
+          <div class="kpi"><div class="kpi-label">CSAT Filtro</div><div class="kpi-value" style="font-size:15px">Todos</div></div>
+          <div class="kpi"><div class="kpi-label">Score Médio</div><div class="kpi-value">9.7</div><div class="kpi-delta up">Período ago/26</div></div>
+        </div>
+        <div class="tbl-wrap" style="margin-bottom:12px">
+          <div class="tbl-header"><div class="tbl-title">Atendimentos</div><div class="tbl-filters"><input class="tbl-search" placeholder="Buscar cliente, ID, topic..."></div></div>
+          <table>
+            <thead><tr><th>Data</th><th>Marca</th><th>ID</th><th>Canal</th><th>Analista</th><th>Cliente</th><th>Topics</th><th>Infrações</th><th>CSAT</th><th>Score</th><th>URL</th></tr></thead>
+            <tbody>
+              <tr><td>08/06/2026</td><td><span class="pill pill-teal">BRAND BETA</span></td><td class="mono">215475388933174</td><td>Chat</td><td>Denis</td><td>Rafael D.S.M.</td><td style="font-size:10px;color:var(--txt3)">Alerta de SLA - BRAND BETA, Inconsistência de Fluxo - ID-1033</td><td><span class="pill pill-coral">Escuta Ativa (M)</span></td><td>—</td><td>9.8</td><td><a href="#" style="color:var(--purple);font-size:10px">↗</a></td></tr>
+              <tr><td>08/08/2026</td><td><span class="pill pill-teal">BRAND BETA</span></td><td class="mono">215475404031419</td><td>Chat</td><td>Henrique P.</td><td>Marcelo F.F.R.</td><td style="font-size:10px;color:var(--txt3)">Alerta de SLA - BRAND BETA, Inconsistência de Fluxo - ID-1033</td><td><span class="pill pill-amber">Conformidade (B)</span></td><td>—</td><td>9.7</td><td><a href="#" style="color:var(--purple);font-size:10px">↗</a></td></tr>
+              <tr><td>08/15/2026</td><td><span class="pill pill-amber">BRAND ALPHA</span></td><td class="mono">215475498924186</td><td>Chat</td><td>Mariana</td><td>André H.Z.</td><td style="font-size:10px;color:var(--txt3)">Verificação, Login, KYC</td><td><span class="pill pill-coral">Resolutividade (G)</span></td><td>—</td><td>7.2</td><td><a href="#" style="color:var(--purple);font-size:10px">↗</a></td></tr>
+              <tr><td>07/24/2026</td><td><span class="pill pill-amber">BRAND ALPHA</span></td><td class="mono">215475142876640</td><td>Chat</td><td>Admin.</td><td>Carla</td><td style="font-size:10px;color:var(--txt3)">Verificação, KYC, Saqu.</td><td><span class="pill pill-teal">Sem ocorrências</span></td><td>—</td><td>9.9</td><td><a href="#" style="color:var(--purple);font-size:10px">↗</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Revisões</div></div>
+            <table style="width:100%;font-size:11px;border-collapse:collapse">
+              <thead><tr><th style="text-align:left;padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Data</th><th style="padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Responsável</th><th style="padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Pilar</th><th style="padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Abono</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:5px;color:var(--txt1)">01/06/2026</td><td style="padding:5px;color:var(--txt1)">Mariana</td><td style="padding:5px"><span class="pill pill-blue">Fundamentos</span></td><td style="padding:5px">—</td></tr>
+                <tr><td style="padding:5px;color:var(--txt1)">01/06/2026</td><td style="padding:5px;color:var(--txt1)">Lucas</td><td style="padding:5px"><span class="pill pill-amber">Qualidade</span></td><td style="padding:5px"><span class="pill pill-teal">Aprovado</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Infrações por Pilar</div></div>
+            <table style="width:100%;font-size:11px;border-collapse:collapse">
+              <thead><tr><th style="text-align:left;padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Pilar</th><th style="padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Baixa</th><th style="padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Média</th><th style="padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Grave</th><th style="padding:5px;color:var(--txt3);font-size:10px;border-bottom:1px solid var(--border)">Total</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:5px;color:var(--txt1)">Fundamentos</td><td style="padding:5px;text-align:center;color:var(--teal)">10</td><td style="padding:5px;text-align:center;color:#F59E0B">203</td><td style="padding:5px;text-align:center;color:#F06060">252</td><td style="padding:5px;text-align:center;font-weight:700">465</td></tr>
+                <tr><td style="padding:5px;color:var(--txt1)">Qualidade</td><td style="padding:5px;text-align:center;color:var(--teal)">99</td><td style="padding:5px;text-align:center;color:#F59E0B">11</td><td style="padding:5px;text-align:center;color:#F06060">132</td><td style="padding:5px;text-align:center;font-weight:700">242</td></tr>
+                <tr><td style="padding:5px;color:var(--txt1)">Conformidade</td><td style="padding:5px;text-align:center;color:var(--teal)">12</td><td style="padding:5px;text-align:center;color:#F59E0B">38</td><td style="padding:5px;text-align:center;color:#F06060">150</td><td style="padding:5px;text-align:center;font-weight:700">200</td></tr>
+                <tr style="background:var(--bg3)"><td style="padding:5px;font-weight:600;color:var(--txt1)">Total</td><td style="padding:5px;text-align:center;font-weight:700;color:var(--teal)">121</td><td style="padding:5px;text-align:center;font-weight:700;color:#F59E0B">252</td><td style="padding:5px;text-align:center;font-weight:700;color:#F06060">534</td><td style="padding:5px;text-align:center;font-weight:700">907</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. VOLUMETRIA -->
+      <div class="dash-panel" id="dash-volumetria">
+        <div style="font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:4px">Volumetria</div>
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Conversas, canais, FCR e Humano vs Bot — ago/2026</div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Conversas</div><div class="kpi-value">474</div><div class="kpi-delta down">▼ -150 vs P.A. · Humano: 346</div></div>
+          <div class="kpi"><div class="kpi-label">CSAT %</div><div class="kpi-value">82.6%</div><div class="kpi-delta up">▲ +7.1% vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">TMPR</div><div class="kpi-value">1m 43s</div><div class="kpi-delta up">▲ -27s vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">TMR</div><div class="kpi-value">47s</div><div class="kpi-delta up">▲ -16s vs P.A.</div></div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Conversas por Canal</div></div>
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-lbl">Chat</div><div class="bar-bg"><div class="bar-fill" style="width:89%;background:#7B6EF6"></div></div><div class="bar-val">419</div></div>
+              <div class="bar-row"><div class="bar-lbl">E-mail</div><div class="bar-bg"><div class="bar-fill" style="width:10%;background:#22D3A8"></div></div><div class="bar-val">49</div></div>
+              <div class="bar-row"><div class="bar-lbl">Android App</div><div class="bar-bg"><div class="bar-fill" style="width:1%;background:#F59E0B"></div></div><div class="bar-val">4</div></div>
+              <div class="bar-row"><div class="bar-lbl">Instagram</div><div class="bar-bg"><div class="bar-fill" style="width:0.4%;background:#F06060"></div></div><div class="bar-val">2</div></div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="card-title" style="margin-bottom:8px">FCR por Marca</div>
+              <div class="bar-chart">
+                <div class="bar-row"><div class="bar-lbl">BRAND ALPHA</div><div class="bar-bg"><div class="bar-fill" style="width:73%;background:#7B6EF6"></div></div><div class="bar-val">72.8%</div></div>
+                <div class="bar-row"><div class="bar-lbl">BRAND BETA</div><div class="bar-bg"><div class="bar-fill" style="width:69%;background:#F59E0B"></div></div><div class="bar-val">68.9%</div></div>
+                <div class="bar-row"><div class="bar-lbl">BRAND GAMMA</div><div class="bar-bg"><div class="bar-fill" style="width:59%;background:#F06060"></div></div><div class="bar-val">58.7%</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Humano vs Bot por Mês</div></div>
+            <div style="display:flex;align-items:flex-end;gap:6px;height:110px;padding:0 0 4px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="width:100%;background:#7B6EF6;border-radius:3px 3px 0 0;flex:1;min-height:4px;opacity:0.6"></div>
+                <div style="width:100%;background:#F59E0B;border-radius:0;height:20px;opacity:0.6"></div>
+                <div style="font-size:9px;color:var(--txt3)">Jun</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="width:100%;background:#7B6EF6;border-radius:3px 3px 0 0;height:60px;opacity:0.7"></div>
+                <div style="width:100%;background:#F59E0B;border-radius:0;height:25px;opacity:0.7"></div>
+                <div style="font-size:9px;color:var(--txt3)">Jul</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="width:100%;background:#7B6EF6;border-radius:3px 3px 0 0;height:80px"></div>
+                <div style="width:100%;background:#F59E0B;border-radius:0;height:18px"></div>
+                <div style="font-size:9px;color:var(--txt3)">Ago</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:6px;font-size:10px">
+              <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:#7B6EF6"></div><span style="color:var(--txt3)">Humano: 346</span></div>
+              <div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:#F59E0B"></div><span style="color:var(--txt3)">Bot</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. RECLAME AQUI DASH -->
+      <div class="dash-panel" id="dash-reclame-dash">
+        <div style="font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:4px">Reclame Aqui</div>
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Score geral, taxa resolução e tipo de reclamação — ago/2026</div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Reclamações</div><div class="kpi-value">20</div><div class="kpi-delta down">Não resolvidas: 2</div></div>
+          <div class="kpi"><div class="kpi-label">Taxa Resolução</div><div class="kpi-value">90%</div><div class="kpi-delta down">▼ -5.6% vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">Nota Média (Site)</div><div class="kpi-value">7.4</div><div class="kpi-delta warn">Meta: 8.0</div></div>
+          <div class="kpi"><div class="kpi-label">Score Geral</div><div class="kpi-value">65.9</div><div class="kpi-delta down">▼ -0.6 vs P.A.</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Tipo de Reclamação</div></div>
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-lbl">Falha Técnica</div><div class="bar-bg"><div class="bar-fill" style="width:75%;background:#7B6EF6"></div></div><div class="bar-val">9</div></div>
+              <div class="bar-row"><div class="bar-lbl">KYC</div><div class="bar-bg"><div class="bar-fill" style="width:42%;background:#22D3A8"></div></div><div class="bar-val">5</div></div>
+              <div class="bar-row"><div class="bar-lbl">Bônus/Promoção</div><div class="bar-bg"><div class="bar-fill" style="width:42%;background:#F59E0B"></div></div><div class="bar-val">5</div></div>
+              <div class="bar-row"><div class="bar-lbl">Saque</div><div class="bar-bg"><div class="bar-fill" style="width:33%;background:#F06060"></div></div><div class="bar-val">4</div></div>
+              <div class="bar-row"><div class="bar-lbl">Fraude/Seg.</div><div class="bar-bg"><div class="bar-fill" style="width:25%;background:#60A5FA"></div></div><div class="bar-val">3</div></div>
+              <div class="bar-row"><div class="bar-lbl">Política/T.U.</div><div class="bar-bg"><div class="bar-fill" style="width:17%;background:#A78BFA"></div></div><div class="bar-val">2</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Status das Reclamações</div></div>
+            <div style="display:flex;justify-content:center;margin-bottom:10px">
+              <svg viewBox="0 0 100 100" style="width:100px;height:100px">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#22222D" stroke-width="14"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#22D3A8" stroke-width="14" stroke-dasharray="226 25" stroke-dashoffset="-6" transform="rotate(-90 50 50)"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#F59E0B" stroke-width="14" stroke-dasharray="12 239" stroke-dashoffset="-232" transform="rotate(-90 50 50)"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#F06060" stroke-width="14" stroke-dasharray="13 238" stroke-dashoffset="-244" transform="rotate(-90 50 50)"/>
+                <text x="50" y="53" text-anchor="middle" fill="#F0EFF8" font-size="14" font-weight="700">90%</text>
+              </svg>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;font-size:11px">
+              <div style="display:flex;align-items:center;gap:6px;justify-content:space-between"><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:#22D3A8"></div><span style="color:var(--txt2)">Resolvida</span></div><span style="font-weight:600;color:var(--txt1)">18</span></div>
+              <div style="display:flex;align-items:center;gap:6px;justify-content:space-between"><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div><span style="color:var(--txt2)">Em Réplica</span></div><span style="font-weight:600;color:var(--txt1)">1</span></div>
+              <div style="display:flex;align-items:center;gap:6px;justify-content:space-between"><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:#F06060"></div><span style="color:var(--txt2)">Em Andamento</span></div><span style="font-weight:600;color:var(--txt1)">1</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. REINCIDÊNCIAS -->
+      <div class="dash-panel" id="dash-reincidencias">
+        <div style="font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:4px">Reincidências</div>
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Clientes, temas e infrações recorrentes — ago/2026</div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Clientes Reincidentes</div><div class="kpi-value">65</div><div class="kpi-delta down">▼ -25 vs P.A. · Reincid: 123</div></div>
+          <div class="kpi"><div class="kpi-label">Taxa Reincidentes</div><div class="kpi-value">18.3%</div><div class="kpi-delta down">▼ -2.2% vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">Reincidentes c/ Infração</div><div class="kpi-value">12</div><div class="kpi-delta down">▼ -20 vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">Infrações Reincidentes</div><div class="kpi-value">29</div><div class="kpi-delta"><span>Graves: 13 · M.Graves: —</span></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Clientes Reincidentes por Marca</div></div>
+            <div style="display:flex;align-items:flex-end;gap:10px;height:90px;padding:0 10px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="font-size:10px;font-weight:700;color:#7B6EF6">43</div>
+                <div style="width:100%;height:75px;background:#7B6EF6;border-radius:3px 3px 0 0;opacity:0.8"></div>
+                <div style="font-size:9px;color:var(--txt3)">BRAND ALPHA</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="font-size:10px;font-weight:700;color:#F59E0B">25</div>
+                <div style="width:100%;height:44px;background:#F59E0B;border-radius:3px 3px 0 0;opacity:0.8"></div>
+                <div style="font-size:9px;color:var(--txt3)">BRAND GAMMA</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div style="font-size:10px;font-weight:700;color:#22D3A8">25</div>
+                <div style="width:100%;height:44px;background:#22D3A8;border-radius:3px 3px 0 0;opacity:0.8"></div>
+                <div style="font-size:9px;color:var(--txt3)">BRAND BETA</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Infrações Reincidentes por Tipo</div></div>
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-lbl">Escuta Ativa</div><div class="bar-bg"><div class="bar-fill" style="width:100%;background:#7B6EF6"></div></div><div class="bar-val">14</div></div>
+              <div class="bar-row"><div class="bar-lbl">Prazos</div><div class="bar-bg"><div class="bar-fill" style="width:93%;background:#F06060"></div></div><div class="bar-val">13</div></div>
+              <div class="bar-row"><div class="bar-lbl">Resolutividade</div><div class="bar-bg"><div class="bar-fill" style="width:50%;background:#F59E0B"></div></div><div class="bar-val">7</div></div>
+              <div class="bar-row"><div class="bar-lbl">Proatividade</div><div class="bar-bg"><div class="bar-fill" style="width:36%;background:#22D3A8"></div></div><div class="bar-val">5</div></div>
+              <div class="bar-row"><div class="bar-lbl">Termos a Evitar</div><div class="bar-bg"><div class="bar-fill" style="width:29%;background:#60A5FA"></div></div><div class="bar-val">4</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. CUSTO IA DASH -->
+      <div class="dash-panel" id="dash-custo-ia">
+        <div style="font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:4px">Custo e Eficiência IA</div>
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">USD, BRL, tokens e erros por auditor — ago/2026</div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Custo USD</div><div class="kpi-value">$9.88</div><div class="kpi-delta up">▲ +$8.94 vs P.A. · Por auditoria: $0.02</div></div>
+          <div class="kpi"><div class="kpi-label">Custo BRL</div><div class="kpi-value">R$52.38</div><div class="kpi-delta up">▲ +R$47.39 vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">Total Tokens</div><div class="kpi-value">60 Mi</div><div class="kpi-delta up">▲ +55.8 Mi vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">Total Auditorias</div><div class="kpi-value">4.033</div><div class="kpi-delta"><span>BRAND BETA: 1531 · BRAND ALPHA: 1709</span></div></div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Custo por Etapa IA (BRL)</div></div>
+            <div class="bar-chart">
+              <div class="bar-row"><div class="bar-lbl">Triagem</div><div class="bar-bg"><div class="bar-fill" style="width:85%;background:#7B6EF6"></div></div><div class="bar-val">R$32</div></div>
+              <div class="bar-row"><div class="bar-lbl">Conformidade</div><div class="bar-bg"><div class="bar-fill" style="width:20%;background:#22D3A8"></div></div><div class="bar-val">R$8</div></div>
+              <div class="bar-row"><div class="bar-lbl">Qualidade</div><div class="bar-bg"><div class="bar-fill" style="width:12%;background:#F59E0B"></div></div><div class="bar-val">R$5</div></div>
+              <div class="bar-row"><div class="bar-lbl">Fundamentos</div><div class="bar-bg"><div class="bar-fill" style="width:10%;background:#60A5FA"></div></div><div class="bar-val">R$4</div></div>
+              <div class="bar-row"><div class="bar-lbl">Revisor</div><div class="bar-bg"><div class="bar-fill" style="width:6%;background:#F06060"></div></div><div class="bar-val">R$2</div></div>
+              <div class="bar-row"><div class="bar-lbl">Juiz Abono</div><div class="bar-bg"><div class="bar-fill" style="width:3%;background:#34D399"></div></div><div class="bar-val">R$1</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Custo e Tokens por Mês</div></div>
+            <svg viewBox="0 0 300 100" style="width:100%;height:100px">
+              <line x1="30" y1="10" x2="280" y2="10" stroke="#2A2A38" stroke-width="1"/>
+              <line x1="30" y1="40" x2="280" y2="40" stroke="#2A2A38" stroke-width="1"/>
+              <line x1="30" y1="70" x2="280" y2="70" stroke="#2A2A38" stroke-width="1"/>
+              <text x="28" y="13" fill="#6B6B85" font-size="7" text-anchor="end">R$60</text>
+              <text x="28" y="43" fill="#6B6B85" font-size="7" text-anchor="end">R$30</text>
+              <text x="28" y="73" fill="#6B6B85" font-size="7" text-anchor="end">R$5</text>
+              <!-- Custo BRL bars -->
+              <rect x="50" y="68" width="18" height="3" fill="#F59E0B" rx="2"/>
+              <rect x="105" y="65" width="18" height="6" fill="#F59E0B" rx="2"/>
+              <rect x="160" y="58" width="18" height="13" fill="#F59E0B" rx="2"/>
+              <rect x="215" y="12" width="18" height="59" fill="#F59E0B" rx="2" opacity="0.9"/>
+              <!-- Tokens line -->
+              <polyline points="59,78 114,75 169,68 224,18" fill="none" stroke="#7B6EF6" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="224" cy="18" r="3" fill="#7B6EF6"/>
+              <!-- X labels -->
+              <text x="59" y="88" fill="#6B6B85" font-size="7" text-anchor="middle">Mai</text>
+              <text x="114" y="88" fill="#6B6B85" font-size="7" text-anchor="middle">Jun</text>
+              <text x="169" y="88" fill="#6B6B85" font-size="7" text-anchor="middle">Jul</text>
+              <text x="224" y="88" fill="#6B6B85" font-size="7" text-anchor="middle">Ago</text>
+              <!-- Legend -->
+              <rect x="30" y="98" width="8" height="6" fill="#F59E0B" rx="1"/><text x="42" y="104" fill="#A8A8C0" font-size="7">Custo BRL</text>
+              <line x1="95" y1="101" x2="105" y2="101" stroke="#7B6EF6" stroke-width="2"/><text x="108" y="104" fill="#A8A8C0" font-size="7">Tokens</text>
+            </svg>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-header"><div class="tbl-title">Total por Marca</div></div>
+          <table>
+            <thead><tr><th>Marca</th><th>Total Custo USD</th><th>Total Custo BRL</th><th>Total Tokens</th><th>Taxa Erros</th><th>Total Auditorias</th></tr></thead>
+            <tbody>
+              <tr><td><strong>BRAND BETA</strong></td><td>$4.39</td><td>R$23.28</td><td>18.043,2 Mil</td><td><span class="pill pill-teal">0%</span></td><td>1.531</td></tr>
+              <tr><td><strong>BRAND ALPHA</strong></td><td>$3.83</td><td>R$20.28</td><td>15.872,3 Mil</td><td><span class="pill pill-teal">0%</span></td><td>1.709</td></tr>
+              <tr><td><strong>BRAND GAMMA</strong></td><td>$1.66</td><td>R$8.82</td><td>7.260,4 Mil</td><td><span class="pill pill-teal">0%</span></td><td>793</td></tr>
+              <tr style="background:var(--bg3)"><td><strong>Total</strong></td><td><strong>$9.88</strong></td><td><strong>R$52.38</strong></td><td><strong>41.176,1 Mil</strong></td><td><span class="pill pill-teal">0%</span></td><td><strong>4.033</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 9. ATLASSIAN DASH -->
+      <div class="dash-panel" id="dash-atlassian-dash">
+        <div style="font-size:14px;font-weight:600;color:var(--txt1);margin-bottom:4px">Atlassian — Jira & Confluence</div>
+        <div style="font-size:11px;color:var(--txt3);margin-bottom:14px">Visão integrada de tarefas e documentação — ago/2026</div>
+        <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+          <div class="kpi"><div class="kpi-label">Total Tarefas</div><div class="kpi-value">647</div><div class="kpi-delta down">▼ -95 vs P.A. · Abertas: 125</div></div>
+          <div class="kpi"><div class="kpi-label">Customer Service</div><div class="kpi-value">232</div><div class="kpi-delta down">▼ -19 vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">Antifraude</div><div class="kpi-value">186</div><div class="kpi-delta up">▲ +3 vs P.A.</div></div>
+          <div class="kpi"><div class="kpi-label">Confluence Pages</div><div class="kpi-value">3</div><div class="kpi-delta"><span>Criadas · 5 Atualizadas</span></div></div>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Tarefas por Marca</div></div>
+            <div style="display:flex;justify-content:center">
+              <svg viewBox="0 0 100 100" style="width:120px;height:120px">
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#2A2A38" stroke-width="14"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#7B6EF6" stroke-width="14" stroke-dasharray="95 144" stroke-dashoffset="-6" transform="rotate(-90 50 50)"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#22D3A8" stroke-width="14" stroke-dasharray="68 171" stroke-dashoffset="-101" transform="rotate(-90 50 50)"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#F59E0B" stroke-width="14" stroke-dasharray="76 163" stroke-dashoffset="-169" transform="rotate(-90 50 50)"/>
+              </svg>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-top:4px">
+              <div style="display:flex;align-items:center;gap:6px;justify-content:space-between"><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:#7B6EF6"></div><span style="color:var(--txt2)">BRAND ALPHA</span></div><span style="font-weight:600;color:var(--txt1)">8</span></div>
+              <div style="display:flex;align-items:center;gap:6px;justify-content:space-between"><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:#22D3A8"></div><span style="color:var(--txt2)">BRAND BETA</span></div><span style="font-weight:600;color:var(--txt1)">4</span></div>
+              <div style="display:flex;align-items:center;gap:6px;justify-content:space-between"><div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div><span style="color:var(--txt2)">BRAND GAMMA</span></div><span style="font-weight:600;color:var(--txt1)">2</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Tarefas por Status</div></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="bar-row"><div class="bar-lbl">Concluído</div><div class="bar-bg"><div class="bar-fill" style="width:65%;background:#22D3A8"></div></div><div class="bar-val">35</div></div>
+              <div class="bar-row"><div class="bar-lbl">Pendente</div><div class="bar-bg"><div class="bar-fill" style="width:15%;background:#F59E0B"></div></div><div class="bar-val">8</div></div>
+              <div class="bar-row"><div class="bar-lbl">Em Andamento</div><div class="bar-bg"><div class="bar-fill" style="width:9%;background:#7B6EF6"></div></div><div class="bar-val">5</div></div>
+              <div class="bar-row"><div class="bar-lbl">Não será feito</div><div class="bar-bg"><div class="bar-fill" style="width:4%;background:#F06060"></div></div><div class="bar-val">2</div></div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="card-title" style="margin-bottom:8px">Tarefas CS e AFO</div>
+              <div style="display:flex;gap:8px">
+                <div style="flex:1;background:var(--bg3);border-radius:7px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:#7B6EF6">14</div><div style="font-size:10px;color:var(--txt3)">CS</div></div>
+                <div style="flex:1;background:var(--bg3);border-radius:7px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:#22D3A8">22</div><div style="font-size:10px;color:var(--txt3)">AFO</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-header"><div class="tbl-title">Total Tarefas por Analista</div></div>
+          <table>
+            <thead><tr><th>Analista</th><th>Total</th><th>Em Andamento</th><th>Concluídas</th><th>Pgs Criadas</th><th>Pgs Atualizadas</th></tr></thead>
+            <tbody>
+              <tr><td>Thiago B.</td><td>10</td><td>2</td><td>4</td><td>1</td><td>1</td></tr>
+              <tr><td>Gabriel</td><td>6</td><td>—</td><td>6</td><td>—</td><td>—</td></tr>
+              <tr><td>Juliana M.</td><td>6</td><td>—</td><td>6</td><td>—</td><td>—</td></tr>
+              <tr><td>Rafael</td><td>1</td><td>—</td><td>1</td><td>2</td><td>1</td></tr>
+              <tr style="background:var(--bg3)"><td><strong>Total</strong></td><td><strong>54</strong></td><td><strong>5</strong></td><td><strong>35</strong></td><td><strong>3</strong></td><td><strong>5</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RECLAME AQUI -->
+    <div class="screen" id="screen-reclame">
+      <div class="breadcrumb">CORTEX <span>/ Reclame Aqui</span></div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Reclamações</div><div class="kpi-value">20</div><div class="kpi-delta down">Resolvidas: 18</div></div>
+        <div class="kpi"><div class="kpi-label">Taxa Resolução</div><div class="kpi-value">90.0%</div><div class="kpi-delta down"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>-5.6% vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">Nota Média (Site)</div><div class="kpi-value">7.4</div><div class="kpi-delta warn">Meta: 8.0</div></div>
+        <div class="kpi"><div class="kpi-label">Score Geral</div><div class="kpi-value">65.9</div><div class="kpi-delta down"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>-0.6 vs P.A.</div></div>
+      </div>
+      <div class="ra-grid" style="margin-bottom:14px">
+        <div class="ra-brand"><div class="ra-brand-header"><div class="ra-brand-name">BRAND ALPHA</div><span class="pill pill-amber">Score 67</span></div><div class="ra-stats"><div class="ra-stat"><div class="ra-stat-lbl">Reclamações</div><div class="ra-stat-val">13</div></div><div class="ra-stat"><div class="ra-stat-lbl">Resolvidas</div><div class="ra-stat-val">11</div></div><div class="ra-stat"><div class="ra-stat-lbl">Taxa</div><div class="ra-stat-val">84.6%</div></div><div class="ra-stat"><div class="ra-stat-lbl">Nota Média</div><div class="ra-stat-val">7.1</div></div></div></div>
+        <div class="ra-brand"><div class="ra-brand-header"><div class="ra-brand-name">BRAND GAMMA</div><span class="pill pill-coral">Score 57</span></div><div class="ra-stats"><div class="ra-stat"><div class="ra-stat-lbl">Reclamações</div><div class="ra-stat-val">7</div></div><div class="ra-stat"><div class="ra-stat-lbl">Resolvidas</div><div class="ra-stat-val">7</div></div><div class="ra-stat"><div class="ra-stat-lbl">Taxa</div><div class="ra-stat-val">100%</div></div><div class="ra-stat"><div class="ra-stat-lbl">Nota Média</div><div class="ra-stat-val">7.0</div></div></div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-header"><div class="tbl-title">Casos Recentes — BRAND ALPHA</div></div>
+        <table>
+          <thead><tr><th>Data</th><th>Responsável</th><th>ID Caso</th><th>Tipo</th><th>Nível</th><th>Resolvida?</th><th>Voltaria?</th><th>Avaliação</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr><td>01/06/2026</td><td>Gabriel Silva</td><td class="mono">250169165</td><td><span class="pill pill-blue">KYC</span></td><td><span class="pill pill-teal">BAIXO</span></td><td><span class="pill pill-teal">Sim</span></td><td><span class="pill pill-gray">Pendente</span></td><td><span class="pill pill-gray">Pendente</span></td><td>—</td></tr>
+            <tr><td>01/07/2026</td><td>Ricardo Teixeira</td><td class="mono">252711075</td><td><span class="pill pill-gray">Política/T.U.</span></td><td><span class="pill pill-teal">BAIXO</span></td><td><span class="pill pill-teal">Sim</span></td><td><span class="pill pill-gray">Pendente</span></td><td><span class="pill pill-gray">Pendente</span></td><td>—</td></tr>
+            <tr><td>02/02/2026</td><td>Ana P. Lima</td><td class="mono">239098279</td><td><span class="pill pill-amber">Falha Técnica</span></td><td><span class="pill pill-amber">MÉDIO</span></td><td><span class="pill pill-teal">Sim</span></td><td><span class="pill pill-teal">Sim</span></td><td>⭐ 10</td><td>6.7</td></tr>
+            <tr><td>02/02/2026</td><td>Ana P. Lima</td><td class="mono">239177553</td><td><span class="pill pill-amber">Saque</span></td><td><span class="pill pill-teal">BAIXO</span></td><td><span class="pill pill-teal">Sim</span></td><td><span class="pill pill-teal">Sim</span></td><td>⭐ 10</td><td>6.7</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CANAIS EXTERNOS -->
+    <div class="screen" id="screen-canais">
+      <div class="breadcrumb">CORTEX <span>/ Canais Externos</span></div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Total Canais</div><div class="kpi-value">23</div><div class="kpi-delta up">+15 vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">Consumidor.gov</div><div class="kpi-value">15</div><div class="kpi-delta up">+7 vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">Ouvidoria</div><div class="kpi-value">3</div><div class="kpi-delta"><span>Estável</span></div></div>
+        <div class="kpi"><div class="kpi-label">PROCON</div><div class="kpi-value">2</div><div class="kpi-delta"><span>Estável</span></div></div>
+      </div>
+      <div class="canais-list">
+        <div class="canal-row"><div class="canal-icon" style="background:var(--blue-bg);color:var(--blue)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div class="canal-info"><div class="canal-name">Consumidor.gov</div><div class="canal-detail">Responsável: Marcos · 15 casos · BRAND ALPHA</div></div><span class="pill pill-blue">15 casos</span></div>
+        <div class="canal-row"><div class="canal-icon" style="background:var(--amber-bg);color:var(--amber)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="canal-info"><div class="canal-name">Ouvidoria</div><div class="canal-detail">3 casos ativos</div></div><span class="pill pill-amber">3 casos</span></div>
+        <div class="canal-row"><div class="canal-icon" style="background:var(--coral-bg);color:var(--coral)"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="canal-info"><div class="canal-name">PROCON</div><div class="canal-detail">2 casos ativos</div></div><span class="pill pill-coral">2 casos</span></div>
+        <div class="canal-row"><div class="canal-icon" style="background:var(--purple-bg);color:var(--purple)"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="canal-info"><div class="canal-name">Denúncia</div><div class="canal-detail">1 caso ativo</div></div><span class="pill pill-purple">1 caso</span></div>
+        <div class="canal-row"><div class="canal-icon" style="background:var(--teal-bg);color:var(--teal)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><div class="canal-info"><div class="canal-name">Intimação Judicial</div><div class="canal-detail">1 caso ativo</div></div><span class="pill pill-teal">1 caso</span></div>
+      </div>
+    </div>
+
+    <!-- JIRA -->
+    <div class="screen" id="screen-jira">
+      <div class="breadcrumb">CORTEX <span>/ Jira & Tarefas</span></div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Total Tarefas</div><div class="kpi-value">647</div><div class="kpi-delta down">Abertas: 125</div></div>
+        <div class="kpi"><div class="kpi-label">Customer Service</div><div class="kpi-value">232</div><div class="kpi-delta down">-95 vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">Antifraude</div><div class="kpi-value">186</div><div class="kpi-delta up">+3 vs P.A.</div></div>
+        <div class="kpi"><div class="kpi-label">Concluídas</div><div class="kpi-value">35</div><div class="kpi-delta up">Este mês</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-header"><div class="tbl-title">Tarefas Recentes</div><div class="tbl-filters"><select class="tbl-filter"><option>Todos os projetos</option><option>CSALPHA</option><option>CSBETA</option><option>CSGAMMA</option><option>PMALPHA</option></select></div></div>
+        <table>
+          <thead><tr><th>Key</th><th>Projeto</th><th>Resumo</th><th>Status</th><th>Prioridade</th><th>Responsável</th><th>Atualizado</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://orion.atlassian.net/browse/CSBETA-1034" target="_blank" style="color:var(--purple);font-family:var(--mono);font-size:11px">CSBETA-1034</a></td><td><span class="pill pill-teal">BRAND BETA CS</span></td><td>Bloqueio Centralizado | ID: 28261578</td><td><span class="pill pill-teal">Feita</span></td><td><span class="pill pill-gray">Medium</span></td><td>Vinicius M.</td><td>27/05</td></tr>
+            <tr><td><a href="https://orion.atlassian.net/browse/PMGAMMA-56" target="_blank" style="color:var(--purple);font-family:var(--mono);font-size:11px">PMGAMMA-56</a></td><td><span class="pill pill-purple">BRAND GAMMA AFO</span></td><td>INSTABILIDADE | PSP-X FALLBACK IP WHITELIST</td><td><span class="pill pill-teal">Feita</span></td><td><span class="pill pill-gray">Medium</span></td><td>Camila R.</td><td>27/05</td></tr>
+            <tr><td><a href="https://orion.atlassian.net/browse/CSBETA-1033" target="_blank" style="color:var(--purple);font-family:var(--mono);font-size:11px">CSBETA-1033</a></td><td><span class="pill pill-teal">BRAND BETA CS</span></td><td>Bloqueio Declaração de Inconsistência de Fluxo - ID-1033 | ID: 28261688</td><td><span class="pill pill-teal">Feita</span></td><td><span class="pill pill-gray">Medium</span></td><td>Denis V.</td><td>22/05</td></tr>
+            <tr><td><a href="https://orion.atlassian.net/browse/COALPHA-182" target="_blank" style="color:var(--purple);font-family:var(--mono);font-size:11px">COALPHA-182</a></td><td><span class="pill pill-amber">BRAND ALPHA OP</span></td><td>Instabilidade Saques, Depósitos e KYC — PAYGATEWAY</td><td><span class="pill pill-amber">Em Andamento</span></td><td><span class="pill pill-gray">Medium</span></td><td>—</td><td>23/05</td></tr>
+            <tr><td><a href="https://orion.atlassian.net/browse/CSALPHA-11625" target="_blank" style="color:var(--purple);font-family:var(--mono);font-size:11px">CSALPHA-11625</a></td><td><span class="pill pill-amber">BRAND ALPHA CS</span></td><td>Bloqueio Declaração de Inconsistência de Fluxo - ID-1033 | ID: 1976381</td><td><span class="pill pill-teal">Feita</span></td><td><span class="pill pill-coral">High</span></td><td>Bruno S.</td><td>22/05</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- IA -->
+    <div class="screen" id="screen-ia">
+      <div class="breadcrumb">CORTEX <span>/ Análise IA</span></div>
+      <div class="ia-wrap">
+        <div class="ia-header">
+          <div class="ia-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><circle cx="18" cy="5" r="3"/></svg></div>
+          <div><div class="ia-title">CORTEX IA — Análise Operacional</div><div class="ia-subtitle">Análises preditivas e insights automáticos com base nos dados da operação</div></div>
+          <span class="pill pill-purple" style="margin-left:auto">BETA</span>
+        </div>
+        <textarea class="ia-field" id="ia-field" placeholder="Digite uma pergunta sobre a operação... Ex: 'Qual analista teve mais infrações de Escuta Ativa em agosto?' ou 'Resumo das ocorrências de julho'"></textarea>
+        <div class="ia-actions">
+          <button class="ia-btn ia-btn-primary" onclick="iaAnalyse()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Analisar</button>
+          <button class="ia-btn ia-btn-secondary" onclick="iaQuick('infrações')"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Infrações</button>
+          <button class="ia-btn ia-btn-secondary" onclick="iaQuick('csat')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>CSAT</button>
+          <button class="ia-btn ia-btn-secondary" onclick="iaQuick('ocorrências')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Ocorrências</button>
+          <button class="ia-btn ia-btn-secondary" onclick="iaQuick('ranking')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Ranking</button>
+        </div>
+        <div class="ia-response" id="ia-response"><div class="ia-response-label">✦ CORTEX IA</div><div id="ia-response-text"></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-header"><div class="card-title">Análises Recentes</div></div><div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--txt2)">
+          <div style="padding:8px 10px;background:var(--bg3);border-radius:7px;border:1px solid var(--border)">📊 Infrações de Escuta Ativa cresceram 18% em agosto vs julho</div>
+          <div style="padding:8px 10px;background:var(--bg3);border-radius:7px;border:1px solid var(--border)">⚠️ BRAND BETA com maior concentração de casos Compliance / Risk</div>
+          <div style="padding:8px 10px;background:var(--bg3);border-radius:7px;border:1px solid var(--border)">📈 CSAT Justificado subiu 7.1% após calibração dos auditores</div>
+          <div style="padding:8px 10px;background:var(--bg3);border-radius:7px;border:1px solid var(--border)">👥 Gabriel e Mariana consistentemente acima de 9.8 por 3 meses</div>
+        </div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Sugestões Automáticas</div></div><div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--txt2)">
+          <div style="padding:8px 10px;background:var(--purple-bg);border-radius:7px;border:1px solid rgba(123,110,246,0.2);color:var(--txt1)">🎯 Priorizar treinamento de Escuta Ativa — maior infração do período</div>
+          <div style="padding:8px 10px;background:var(--purple-bg);border-radius:7px;border:1px solid rgba(123,110,246,0.2);color:var(--txt1)">🔍 Revisar casos de Compliance / Risk na BRAND BETA — 12 críticos ativos</div>
+          <div style="padding:8px 10px;background:var(--purple-bg);border-radius:7px;border:1px solid rgba(123,110,246,0.2);color:var(--txt1)">📩 Contato proativo com 4 clientes RA sem resposta desde jun/26</div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- CUSTOS IA -->
+    <div class="screen" id="screen-custos">
+      <div class="breadcrumb">CORTEX <span>/ Custos IA</span></div>
+      <div class="cost-grid" style="margin-bottom:14px">
+        <div class="cost-card"><div class="cost-label">Custo Total USD</div><div class="cost-value">$9.88</div><div class="cost-sub">Por auditoria: $0.02</div></div>
+        <div class="cost-card"><div class="cost-label">Custo Total BRL</div><div class="cost-value">R$ 52.38</div><div class="cost-sub">Por auditoria: R$ 0.10</div></div>
+        <div class="cost-card"><div class="cost-label">Total Tokens</div><div class="cost-value">60 Mi</div><div class="cost-sub">Por auditoria: 138.6 Mi</div></div>
+        <div class="cost-card"><div class="cost-label">Taxa de Erros</div><div class="cost-value" style="color:var(--teal)">0.0%</div><div class="cost-sub">Falsos positivos: —</div></div>
+        <div class="cost-card"><div class="cost-label">Total Auditorias</div><div class="cost-value">4.033</div><div class="cost-sub">BRAND BETA: 1.531 | BRAND ALPHA: 1.709</div></div>
+        <div class="cost-card"><div class="cost-label">Versão Motor</div><div class="cost-value" style="font-size:13px;line-height:1.3">NEXUS v1.6</div><div class="cost-sub">Calibração 10/06/2026</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Custo por Etapa IA — ago/26</div></div>
+        <div class="bar-chart">
+          <div class="bar-row"><div class="bar-lbl">Triagem Contextual</div><div class="bar-bg"><div class="bar-fill" style="width:85%;background:var(--purple)"></div></div><div class="bar-val">$6.4</div></div>
+          <div class="bar-row"><div class="bar-lbl">Auditor Conformidade</div><div class="bar-bg"><div class="bar-fill" style="width:20%;background:var(--teal)"></div></div><div class="bar-val">$1.5</div></div>
+          <div class="bar-row"><div class="bar-lbl">Auditor Qualidade</div><div class="bar-bg"><div class="bar-fill" style="width:12%;background:var(--amber)"></div></div><div class="bar-val">$0.9</div></div>
+          <div class="bar-row"><div class="bar-lbl">Auditor Fundamentos</div><div class="bar-bg"><div class="bar-fill" style="width:10%;background:var(--blue)"></div></div><div class="bar-val">$0.7</div></div>
+          <div class="bar-row"><div class="bar-lbl">Revisor Anti-FP</div><div class="bar-bg"><div class="bar-fill" style="width:5%;background:var(--coral)"></div></div><div class="bar-val">$0.3</div></div>
+          <div class="bar-row"><div class="bar-lbl">Juiz Abono CSAT</div><div class="bar-bg"><div class="bar-fill" style="width:3%;background:var(--green)"></div></div><div class="bar-val">$0.1</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div class="screen" id="screen-usuarios">
+      <div class="breadcrumb">CORTEX <span>/ Usuários</span></div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Ativos</div><div class="kpi-value">22</div><div class="kpi-delta up">CS + AFO + Global</div></div>
+        <div class="kpi"><div class="kpi-label">N1</div><div class="kpi-value">8</div><div class="kpi-delta"><span>Analistas júnior</span></div></div>
+        <div class="kpi"><div class="kpi-label">N2</div><div class="kpi-value">9</div><div class="kpi-delta"><span>Analistas pleno</span></div></div>
+        <div class="kpi"><div class="kpi-label">N3 / Global</div><div class="kpi-value">5</div><div class="kpi-delta"><span>Sênior + Global</span></div></div>
+      </div>
+      <div class="users-grid">
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">GS</div><div><div class="user-card-name">Gabriel Silva</div><div class="user-card-email">gabriel.silva@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N3</span><span class="user-stat">CS</span><span class="user-stat">Diurno</span><span class="user-stat">PARCEIRO A</span><span class="user-stat">44h</span></div></div>
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#60A5FA,#7B6EF6)">MO</div><div><div class="user-card-name">Mariana Oliveira</div><div class="user-card-email">mariana.oliveira@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N3</span><span class="user-stat">CS</span><span class="user-stat">Diurno</span><span class="user-stat">PARCEIRO A</span><span class="user-stat">44h</span></div></div>
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#22D3A8,#3B82F6)">RM</div><div><div class="user-card-name">Rafael Mendes</div><div class="user-card-email">rafael.mendes@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N3</span><span class="user-stat">CS</span><span class="user-stat">Diurno</span><span class="user-stat">PARCEIRO A</span><span class="user-stat">44h</span></div></div>
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#A78BFA,#EC4899)">BC</div><div><div class="user-card-name">Beatriz Costa</div><div class="user-card-email">beatriz.costa@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N1</span><span class="user-stat">CS</span><span class="user-stat">Intermediário</span><span class="user-stat">PARCEIRO B</span><span class="user-stat">40h</span></div></div>
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#F59E0B,#22D3A8)">LS</div><div><div class="user-card-name">Lucas Souza</div><div class="user-card-email">lucas.souza@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N1</span><span class="user-stat">CS</span><span class="user-stat">Diurno</span><span class="user-stat">PARCEIRO B</span><span class="user-stat">40h</span></div></div>
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#34D399,#60A5FA)">JM</div><div><div class="user-card-name">Juliana Martins</div><div class="user-card-email">juliana.martins@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N2</span><span class="user-stat">AFO</span><span class="user-stat">Noturno</span><span class="user-stat">PARCEIRO A</span><span class="user-stat">12x36</span></div></div>
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#7B6EF6,#F59E0B)">TB</div><div><div class="user-card-name">Thiago Barros</div><div class="user-card-email">thiago.barros@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N3</span><span class="user-stat">AFO</span><span class="user-stat">Diurno</span><span class="user-stat">VERTEX IA</span><span class="user-stat">12x36</span></div></div>
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#EC4899,#7B6EF6)">DM</div><div><div class="user-card-name">Diego M.</div><div class="user-card-email">diego.m@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N3 GLOBAL</span><span class="user-stat">GLOBAL</span><span class="user-stat">Diurno</span><span class="user-stat">PARCEIRO A</span><span class="user-stat">44h</span></div></div>
+        <div class="user-card"><div class="user-card-top"><div class="user-card-av" style="background:linear-gradient(135deg,#22D3A8,#F59E0B)">CR</div><div><div class="user-card-name">Camila Rocha</div><div class="user-card-email">camila.rocha@orion-ops.net</div></div></div><div class="user-card-stats"><span class="user-stat">N3 GLOBAL</span><span class="user-stat">GLOBAL</span><span class="user-stat">Intermediário</span><span class="user-stat">PARCEIRO A</span><span class="user-stat">44h</span></div></div>
+      </div>
+    </div>
+
+    <!-- JOBS -->
+    <div class="screen" id="screen-jobs">
+      <div class="breadcrumb">CORTEX <span>/ Conectores & Jobs</span></div>
+      <div class="kpi-grid kpi-grid-4" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-label">Jobs Ativos</div><div class="kpi-value" style="color:var(--teal)">23</div><div class="kpi-delta up">Todos operacionais</div></div>
+        <div class="kpi"><div class="kpi-label">Runs / Dia</div><div class="kpi-value">48+</div><div class="kpi-delta"><span>Estimado</span></div></div>
+        <div class="kpi"><div class="kpi-label">Última Falha</div><div class="kpi-value" style="color:var(--teal)">—</div><div class="kpi-delta up">Sem falhas recentes</div></div>
+        <div class="kpi"><div class="kpi-label">Tempo Real</div><div class="kpi-value">3</div><div class="kpi-delta"><span>Webhooks ativos</span></div></div>
+      </div>
+      <div class="jobs-list">
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[ALPHA] Sync Download Base</div><div class="job-freq">Baixa datasets Intercom BRAND ALPHA · A cada 6h</div></div><div class="job-last">há 2m</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[BETA] Sync Download Base</div><div class="job-freq">Baixa datasets Intercom BRAND BETA · A cada 6h</div></div><div class="job-last">há 8m</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[GAMMA] Sync Download Base</div><div class="job-freq">Baixa datasets Intercom BRAND GAMMA · A cada 6h</div></div><div class="job-last">há 14m</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Monitoria Auto] Auditoria ALPHA</div><div class="job-freq">Auditoria IA conversas BRAND ALPHA · A cada 8h</div></div><div class="job-last">há 1h</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Monitoria Auto] Auditoria BETA</div><div class="job-freq">Auditoria IA conversas BRAND BETA · A cada 8h</div></div><div class="job-last">há 1h 10m</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Jira] Sync Delta 12h</div><div class="job-freq">Sincroniza chamados recentes do Jira · 2x/dia</div></div><div class="job-last">há 3h</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Confluence] Sync Delta 12h</div><div class="job-freq">Sincroniza documentações recentes · 2x/dia</div></div><div class="job-last">há 3h 10m</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Confluence] Webhook Matriz Audit</div><div class="job-freq">Captura edições na Matriz de Auditoria em tempo real</div></div><div class="job-last">Tempo Real</div><div class="job-type">WEBHOOK</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Sistema] Captura Global de Erros</div><div class="job-freq">Alerta Slack se qualquer fluxo falhar</div></div><div class="job-last">Tempo Real</div><div class="job-type">EVENT</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Intercom] Fechamento Diário D-1</div><div class="job-freq">Consolida relatório do dia anterior completo · 1x/dia</div></div><div class="job-last">há 6h</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Intercom] Notificador Parcial 6h</div><div class="job-freq">Volumetria, canais e CSAT por janela de 6h · 4x/dia</div></div><div class="job-last">há 45m</div><div class="job-type">CRON</div></div>
+        <div class="job-row"><div class="job-status ok"></div><div class="job-info"><div class="job-name">[Monitoria CS] Report Diário Auditoria</div><div class="job-freq">Gera árvore de infrações e gravidades por atendente · 1x/dia</div></div><div class="job-last">há 6h</div><div class="job-type">CRON</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="breadcrumb">CORTEX <span>/ Configurações</span></div>
+      <div class="settings-section">
+        <div class="settings-title">Aparência</div>
+        <div class="settings-row"><div class="settings-info"><div class="settings-label">Tema</div><div class="settings-desc">Escolha entre modo escuro, claro ou automático</div></div><div class="settings-action"><div class="theme-toggle"><button class="theme-opt active">Dark</button><button class="theme-opt">Light</button><button class="theme-opt">Auto</button></div></div></div>
+        <div class="settings-row"><div class="settings-info"><div class="settings-label">Marca padrão</div><div class="settings-desc">Marca exibida ao abrir o CORTEX</div></div><div class="settings-action"><select class="settings-input" style="width:160px"><option>Todas as marcas</option><option>BRAND ALPHA</option><option>BRAND BETA</option><option>BRAND GAMMA</option></select></div></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title">Notificadores Slack</div>
+        <div class="notif-list">
+          <div class="notif-row"><div class="notif-channel">#ops-reports</div><div class="notif-info"><div class="notif-name">Volumetria Intercom 6h</div><div class="notif-desc">Total conversas, canais, top 5 topics · 4x/dia</div></div><div class="notif-freq">4x/dia</div><div class="toggle"></div></div>
+          <div class="notif-row"><div class="notif-channel">#ops-reports</div><div class="notif-info"><div class="notif-name">Volumetria Intercom Diária</div><div class="notif-desc">Consolidado completo do dia anterior · 1x/dia</div></div><div class="notif-freq">1x/dia</div><div class="toggle"></div></div>
+          <div class="notif-row"><div class="notif-channel">#ops-brasil</div><div class="notif-info"><div class="notif-name">Monitoria Diária</div><div class="notif-desc">Infrações, score geral, top analistas · 1x/dia</div></div><div class="notif-freq">1x/dia</div><div class="toggle"></div></div>
+          <div class="notif-row"><div class="notif-channel">#ops-brasil</div><div class="notif-info"><div class="notif-name">Monitoria Semanal</div><div class="notif-desc">Top 3 analistas geral e por marca · seg</div></div><div class="notif-freq">1x/sem</div><div class="toggle"></div></div>
+          <div class="notif-row"><div class="notif-channel">#ops-brasil</div><div class="notif-info"><div class="notif-name">Falha Sistêmica</div><div class="notif-desc">Alerta imediato — menção @Diego</div></div><div class="notif-freq">Tempo real</div><div class="toggle"></div></div>
+          <div class="notif-row"><div class="notif-channel">#ops-brasil</div><div class="notif-info"><div class="notif-name">Caso Crítico em Tempo Real</div><div class="notif-desc">Alerta de SLA, fraude, menor idade, ameaça jurídica</div></div><div class="notif-freq">Tempo real</div><div class="toggle"></div></div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title">Relatórios</div>
+        <div class="settings-row"><div class="settings-info"><div class="settings-label">E-mail de monitoria</div><div class="settings-desc">Endereço para recebimento dos relatórios de monitoria</div></div><div class="settings-action"><input class="settings-input" value="monitoriacs@orion-ops.net"></div></div>
+        <div class="settings-row"><div class="settings-info"><div class="settings-label">Relatório Executivo</div><div class="settings-desc">Semanal e mensal · entregue no Drive Monitoria</div></div><div class="settings-action"><button class="btn-sm btn-primary">Gerar agora</button></div></div>
+        <div class="settings-row"><div class="settings-info"><div class="settings-label">Ranking Analistas</div><div class="settings-desc">TOP 3 score geral e por marca · semanal e mensal</div></div><div class="settings-action"><button class="btn-sm btn-primary">Gerar agora</button></div></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title">Autenticação</div>
+        <div class="settings-row"><div class="settings-info"><div class="settings-label">Google SSO</div><div class="settings-desc">Autenticação via Google Workspace · orion-ops.net</div></div><div class="settings-action"><span class="pill pill-teal">Ativo</span></div></div>
+        <div class="settings-row"><div class="settings-info"><div class="settings-label">Sessão atual</div><div class="settings-desc">diego.m@orion-ops.net · N3 Global</div></div><div class="settings-action"><button class="btn-sm">Encerrar sessão</button></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// Navigation
+const titles={visao:'Visão Geral',hub:'Hub CS / AFO',monitoria:'Monitoria IA',cases:'Cases',revisoes:'Revisões',dashboards:'Dashboards',reclame:'Reclame Aqui',canais:'Canais Externos',jira:'Jira & Tarefas',ia:'Análise IA',custos:'Custos IA',usuarios:'Usuários',jobs:'Conectores & Jobs',settings:'Configurações'};
+let activeNav=document.querySelector('.nav-item.active');
+function go(id,el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const t=document.getElementById('screen-'+id);
+  if(t)t.classList.add('active');
+  document.getElementById('topbar-title').textContent=titles[id]||id;
+  if(activeNav)activeNav.classList.remove('active');
+  if(el){el.classList.add('active');activeNav=el;}
+  else{const m=[...document.querySelectorAll('.nav-item')].find(n=>n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'"));if(m){m.classList.add('active');activeNav=m;}}
+}
+
+// Marca
+const marcaLabels={todas:'Todas as marcas','BRAND ALPHA':'BRAND ALPHA','BRAND BETA':'BRAND BETA','BRAND GAMMA':'BRAND GAMMA'};
+function setMarca(v){document.getElementById('topbar-marca').textContent=marcaLabels[v]||v;}
+
+// Hub Links
+const linkData={
+  alpha:[
+    {href:'https://app.intercom.com',name:'Intercom BRAND ALPHA',cat:'Atendimento',icon:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'},
+    {href:'https://orion.atlassian.net/jira/software/projects/CSALPHA/boards/35',name:'Jira CS BRAND ALPHA',cat:'CSALPHA — Board',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://orion.atlassian.net/jira/software/projects/PMALPHA/boards/33',name:'Jira AFO BRAND ALPHA',cat:'PMALPHA — Board',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://brand-alpha.com/',name:'Site BRAND ALPHA',cat:'brand-alpha.com',icon:'M12 2a10 10 0 1 0 10 10 M2 12h20 M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'},
+    {href:'https://orion.atlassian.net/wiki/spaces/CSP',name:'Confluence CS',cat:'Base Procedimentos',icon:'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'},
+    {href:'mailto:helpdesk@orion-ops.net',name:'Help Desk Produto',cat:'helpdesk@orion-ops.net',icon:'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6'},
+  ],
+  beta:[
+    {href:'https://app.intercom.com',name:'Intercom BRAND BETA',cat:'Atendimento',icon:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'},
+    {href:'https://orion.atlassian.net/jira/software/projects/CSBETA/boards/38',name:'Jira CS BRAND BETA',cat:'CSBETA — Board',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://orion.atlassian.net/jira/software/projects/PABETA/boards/39',name:'Jira AFO BRAND BETA',cat:'PABETA — Board',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://brand-beta.com/',name:'Site BRAND BETA',cat:'brand-beta.com',icon:'M12 2a10 10 0 1 0 10 10 M2 12h20'},
+    {href:'https://partner-tech.atlassian.net/servicedesk/customer/portals',name:'Jira Parceiro Tech (Suporte)',cat:'BRAND BETA Tech',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://orion.atlassian.net/wiki/spaces/OP',name:'Confluence OP',cat:'Espaço Operações',icon:'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'},
+  ],
+  gamma:[
+    {href:'https://app.intercom.com',name:'Intercom BRAND GAMMA',cat:'Atendimento',icon:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'},
+    {href:'https://orion.atlassian.net/jira/software/projects/CSGAMMA/boards/247',name:'Jira CS BRAND GAMMA',cat:'CSGAMMA — Board',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://orion.atlassian.net/jira/software/projects/PMGAMMA/boards/246',name:'Jira AFO BRAND GAMMA',cat:'PMGAMMA — Board',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://brand-gamma.com/',name:'Site BRAND GAMMA',cat:'brand-gamma.com',icon:'M12 2a10 10 0 1 0 10 10 M2 12h20'},
+    {href:'https://orion.atlassian.net/wiki/spaces/OP',name:'Confluence OP',cat:'Espaço Operações',icon:'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'},
+    {href:'https://orion.atlassian.net/wiki/spaces/CSP',name:'Confluence CS',cat:'Base Procedimentos',icon:'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'},
+  ],
+  geral:[
+    {href:'https://orion.atlassian.net/jira/software/projects/PO/boards/411',name:'Board Operações (PO)',cat:'Jira — Geral',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://orion.atlassian.net/wiki/spaces/OP',name:'Confluence OP',cat:'Espaço Geral Ops',icon:'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'},
+    {href:'https://orion.atlassian.net/wiki/spaces/CSP',name:'Base Procedimentos CS',cat:'Confluence CSP',icon:'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'},
+    {href:'https://orion.atlassian.net/wiki/spaces/OP/pages/1000000/PI-10.0+-+Lista+de+Verifica+o+de+Opera+es+Checklist+Obrigat+rio',name:'Checklist Operacional',cat:'PI-10.0 — Confluence',icon:'M9 11l3 3L22 4 M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11'},
+    {href:'https://app.intercom.com/a/apps/APP_ID/reports/custom-reports/report/0000000',name:'Métricas Intercom',cat:'Dashboard Intercom',icon:'M18 20V10 M12 20V4 M6 20v-6'},
+    {href:'https://payments.orion-ops.net/dashboard',name:'Painel Transações',cat:'PayGateway',icon:'M18 20V10 M12 20V4 M6 20v-6'},
+  ],
+};
+function setLinkBrand(brand,el){
+  document.querySelectorAll('.brand-tab').forEach(b=>b.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const g=document.getElementById('links-grid');
+  if(g&&linkData[brand]){
+    g.innerHTML=linkData[brand].map(l=>`<a class="link-item" href="${l.href}" target="_blank"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${l.icon}"/></svg><div class="link-item-text"><div class="link-item-name">${l.name}</div><div class="link-item-cat">${l.cat}</div></div></a>`).join('');
+  }
+}
+
+// Dashboard tabs
+let activeDashTab=null;
+function showDash(id,el){
+  document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#dash-tabs .brand-tab').forEach(b=>b.classList.remove('active'));
+  const p=document.getElementById('dash-'+id);
+  if(p)p.classList.add('active');
+  if(el)el.classList.add('active');
+}
+
+// IA
+const iaRespostas={
+  'infrações':'📊 <strong>Análise de Infrações — ago/2026</strong><br><br>Total: <strong>82 infrações</strong> detectadas no período.<br>• Escuta Ativa: 24 casos (29%) — maior categoria<br>• Resolutividade: 13 casos (16%)<br>• Termos a Evitar: 11 casos (13%)<br>• Prazos: 10 casos (12%)<br>• Postura: 6 casos (7%)<br><br>⚠️ Escuta Ativa cresceu 18% vs julho. Recomendação: sessão de alinhamento com os analistas N1.',
+  'csat':'⭐ <strong>Análise CSAT — ago/2026</strong><br><br>CSAT Bruto: <strong>82.6%</strong> (+1.2% vs P.A.)<br>CSAT Justificado: <strong>86.4%</strong> (+7.1% vs P.A.)<br>Conversão: <strong>6.6%</strong> (abaixo da meta de 10%)<br><br>Abonos aprovados: 1 · Negados: 14<br>Avaliações com abono aprovado: fator externo confirmado em 6.6% dos casos.<br><br>🎯 Meta de CSAT ≥80% atingida. Conversão requer atenção urgente.',
+  'ocorrências':'⚡ <strong>Ocorrências Operacionais — 2026</strong><br><br>Janeiro: 19 ocorrências — maior volume do ano<br>Fevereiro: 14 ocorrências<br>Causas mais comuns:<br>• Bug de Sistema Externo: 45%<br>• Bug de Sistema Interno: 38%<br>• Outros: 17%<br><br>Marcas mais afetadas: BRAND ALPHA (63%), BRAND BETA (28%), BRAND GAMMA (9%)<br>Componentes críticos: PayGateway, Intercom, Time de Produto.',
+  'ranking':'🏆 <strong>Ranking Score Geral — ago/2026</strong><br><br>1. Gabriel Silva — <strong>10.0</strong> 🥇<br>2. Mariana Oliveira — <strong>9.83</strong> 🥈<br>3. Lucas Souza — <strong>9.83</strong> 🥈<br>4. Felipe Alves — <strong>9.60</strong> 🥉<br>5. Beatriz Costa — <strong>9.58</strong><br><br>Média geral: 9.68 · Score monitoria médio: 9.7<br>Cobertura auditoria: 77.6% (368 de 474 conversas)',
+};
+function iaQuick(tipo){document.getElementById('ia-field').value=tipo;iaAnalyse();}
+function iaAnalyse(){
+  const f=document.getElementById('ia-field').value.toLowerCase();
+  const r=document.getElementById('ia-response');
+  const rt=document.getElementById('ia-response-text');
+  r.classList.add('visible');
+  rt.innerHTML='<em style="color:var(--txt3)">Analisando dados da operação...</em>';
+  setTimeout(()=>{
+    let resp='Não encontrei análise específica para essa query. Tente: infrações, csat, ocorrências ou ranking.';
+    for(const k of Object.keys(iaRespostas)){if(f.includes(k)){resp=iaRespostas[k];break;}}
+    rt.innerHTML=resp;
+  },800);
+}
+</script>
+</body>
+</html>
