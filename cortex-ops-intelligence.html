@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CORTEX · Ops Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.1/dist/apexcharts.min.js"></script>
+<style>
+/* =========================================================
+   DESIGN TOKENS — dark (padrão) e light
+   ========================================================= */
+:root{
+  --bg0:#08080B;--bg1:#0F0F14;--bg2:#14141B;--bg3:#1B1B24;--bg4:#23232F;
+  --border:#24242F;--border2:#30303F;--border3:#454560;
+  --txt1:#F2F1FA;--txt2:#B0B0C6;--txt3:#71718C;--txt4:#45455A;
+  --purple:#7B6EF6;--purple2:#A197FA;--purple3:#5A4ED4;--purple-bg:rgba(123,110,246,.10);--purple-bg2:rgba(123,110,246,.17);
+  --teal:#22D3A8;--teal-bg:rgba(34,211,168,.11);
+  --coral:#F06060;--coral-bg:rgba(240,96,96,.11);
+  --amber:#F5A524;--amber-bg:rgba(245,165,36,.11);
+  --blue:#60A5FA;--blue-bg:rgba(96,165,250,.11);
+  --green:#4ADE80;--green-bg:rgba(74,222,128,.11);
+  --glass:rgba(20,20,27,.72);--shadow:0 24px 60px -20px rgba(0,0,0,.75);
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);
+}
+[data-theme="light"]{
+  --bg0:#F4F4F8;--bg1:#FFFFFF;--bg2:#FFFFFF;--bg3:#F1F0F7;--bg4:#E8E6F2;
+  --border:#E6E4EF;--border2:#D6D3E4;--border3:#B9B5CF;
+  --txt1:#17152B;--txt2:#4A4763;--txt3:#7D7A96;--txt4:#AEABC4;
+  --purple:#6A5BF0;--purple2:#5546D9;--purple3:#4B3DC9;--purple-bg:rgba(106,91,240,.08);--purple-bg2:rgba(106,91,240,.13);
+  --teal:#0EA982;--coral:#E04646;--amber:#D98A06;--blue:#2F7FE0;--green:#16A34A;
+  --glass:rgba(255,255,255,.8);--shadow:0 24px 60px -24px rgba(40,30,110,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--txt1);font-family:var(--font);font-size:13px}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}::-webkit-scrollbar-track{background:transparent}
+:focus-visible{outline:2px solid var(--purple);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:11px;color:var(--txt3)}
+svg.i{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* ===== SHELL ===== */
+.shell{display:flex;height:100vh;padding-top:var(--sat)}
+.sidebar{width:232px;min-width:232px;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:40;transition:transform .25s}
+.sb-top{padding:16px 14px 12px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:conic-gradient(from 210deg,var(--purple3),var(--purple),var(--teal),var(--purple3));display:grid;place-items:center;box-shadow:0 8px 24px -8px var(--purple)}
+.logo-mark>div{width:26px;height:26px;border-radius:7px;background:var(--bg1);display:grid;place-items:center}
+.logo-name{font-size:15px;font-weight:800;letter-spacing:.06em}
+.logo-tag{font-size:10px;color:var(--txt3);margin-top:1px}
+.sb-field{margin-top:12px}
+.sb-label{font-size:10px;font-weight:600;color:var(--txt3);margin-bottom:5px}
+.select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 28px 7px 10px;font-size:12px;cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371718C' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+.select:hover{border-color:var(--border2)}
+.nav{flex:1;overflow-y:auto;padding:6px 0 10px}
+.nav-grp-label{font-size:10px;font-weight:600;color:var(--txt4);padding:12px 18px 5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 12px;margin:1px 8px;border-radius:8px;color:var(--txt2);cursor:pointer;font-size:12.5px;transition:background .12s,color .12s;position:relative;border:0;background:none;width:calc(100% - 16px);text-align:left}
+.nav-item:hover{background:var(--bg3);color:var(--txt1)}
+.nav-item.active{background:var(--purple-bg2);color:var(--purple2);font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:16px;border-radius:0 3px 3px 0;background:var(--purple)}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--coral-bg);color:var(--coral);transition:transform .3s}
+.nav-badge.blue{background:var(--blue-bg);color:var(--blue)}
+.nav-badge.bump{transform:scale(1.35)}
+.sb-foot{padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.av{border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;flex-shrink:0}
+.sso{font-size:9.5px;font-weight:700;color:var(--teal);background:var(--teal-bg);padding:2px 6px;border-radius:5px;margin-left:auto}
+
+/* ===== MAIN ===== */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:56px;background:var(--glass);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0;z-index:20}
+.tb-title{font-size:15px;font-weight:700}
+.crumb{font-size:11.5px;color:var(--txt3)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--txt2);cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;transition:all .12s}
+.btn:hover{border-color:var(--border2);color:var(--txt1);background:var(--bg4)}
+.btn.primary{background:var(--purple);border-color:var(--purple);color:#fff}
+.btn.primary:hover{background:var(--purple3)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--coral);border-color:rgba(240,96,96,.3)}
+.btn.success{color:var(--teal);border-color:rgba(34,211,168,.3)}
+.btn.sm{padding:4px 8px;font-size:11px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn{width:34px;height:34px;padding:0;justify-content:center;position:relative}
+.dot-count{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:9px;background:var(--coral);color:#fff;font-size:9.5px;font-weight:700;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg1)}
+.kbd{font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:4px;border:1px solid var(--border2);color:var(--txt3);background:var(--bg2)}
+.search-trigger{min-width:220px;justify-content:flex-start;color:var(--txt3)}
+.search-trigger .kbd{margin-left:auto}
+.live{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--txt3)}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(34,211,168,.5);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(34,211,168,0)}100%{box-shadow:0 0 0 0 rgba(34,211,168,0)}}
+.content{flex:1;overflow-y:auto;padding:20px 22px calc(28px + var(--sab))}
+.screen{display:none;animation:fadeIn .28s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.page-title{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.page-sub{font-size:12px;color:var(--txt3);margin-top:3px}
+
+/* ===== KPI ===== */
+.kpis{display:grid;gap:10px;margin-bottom:12px}
+.k4{grid-template-columns:repeat(4,minmax(0,1fr))}.k5{grid-template-columns:repeat(5,minmax(0,1fr))}.k6{grid-template-columns:repeat(6,minmax(0,1fr))}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 14px 10px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s}
+.kpi:hover{border-color:var(--border2)}
+.kpi.click{cursor:pointer}.kpi.click:hover{transform:translateY(-2px)}
+.kpi.sel{border-color:var(--accent,var(--purple));box-shadow:0 0 0 1px var(--accent,var(--purple)) inset}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent,var(--purple));opacity:.9}
+.kpi-label{font-size:11px;font-weight:600;color:var(--txt3);display:flex;align-items:center;gap:6px}
+.kpi-value{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:8px 0 4px;line-height:1}
+.kpi-row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.delta{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:3px}
+.delta.up{color:var(--teal)}.delta.down{color:var(--coral)}.delta.flat{color:var(--txt3)}.delta.warn{color:var(--amber)}
+.kpi-sub{font-size:10.5px;color:var(--txt3)}
+.spark{height:34px;margin:4px -6px -6px}
+.info{position:relative;display:inline-flex;cursor:help;color:var(--txt4)}
+.info:hover{color:var(--purple2)}
+.info .tip{position:absolute;bottom:calc(100% + 8px);left:-10px;width:220px;background:var(--bg4);border:1px solid var(--border2);color:var(--txt2);font-size:11px;font-weight:500;line-height:1.45;padding:9px 11px;border-radius:9px;box-shadow:var(--shadow);opacity:0;visibility:hidden;transition:.15s;z-index:60;pointer-events:none}
+.info:hover .tip{opacity:1;visibility:visible}
+
+/* ===== CARD / GRID ===== */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;min-width:0}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.card-t{font-size:13px;font-weight:700}
+.card-s{font-size:11px;color:var(--txt3);margin-top:2px}
+.link{font-size:11.5px;color:var(--purple2);cursor:pointer;background:none;border:0;font-weight:600}
+.link:hover{text-decoration:underline}
+.g{display:grid;gap:12px;margin-bottom:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}.g12{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.g32{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+
+/* ===== TABLE ===== */
+.tbl-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.tbl-bar{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tbl-bar .card-t{margin-right:auto}
+.input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12px;min-width:0}
+.input:focus,.select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-bg)}
+.input::placeholder{color:var(--txt4)}
+.search{position:relative}.search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--txt4)}
+.search .input{padding-left:29px;width:210px}
+.select.sm{width:auto;font-size:11.5px;padding:6px 26px 6px 9px}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:9px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--txt3);border-bottom:1px solid var(--border);background:var(--bg1);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--txt1)}
+th.sorted{color:var(--purple2)}th.sorted::after{content:' ↓'}th.sorted.asc::after{content:' ↑'}
+th.nosort{cursor:default}
+td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+tbody tr{transition:background .1s}
+tbody tr.rowlink{cursor:pointer}
+tbody tr:hover td{background:var(--purple-bg)}
+tr:last-child td{border-bottom:0}
+.pager{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-top:1px solid var(--border);font-size:11.5px;color:var(--txt3)}
+.pager .btns{display:flex;gap:4px}
+.empty{padding:36px 16px;text-align:center;color:var(--txt3)}
+.empty b{display:block;color:var(--txt1);font-size:13px;margin-bottom:4px}
+
+/* ===== PILLS / CHIPS ===== */
+.pill{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:12px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;border:1px solid transparent}
+.p-purple{background:var(--purple-bg2);color:var(--purple2)}.p-teal{background:var(--teal-bg);color:var(--teal)}.p-coral{background:var(--coral-bg);color:var(--coral)}
+.p-amber{background:var(--amber-bg);color:var(--amber)}.p-blue{background:var(--blue-bg);color:var(--blue)}.p-green{background:var(--green-bg);color:var(--green)}.p-gray{background:var(--bg3);color:var(--txt3);border-color:var(--border)}
+.seg{display:inline-flex;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;color:var(--txt3);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button:hover{color:var(--txt1)}
+.seg button.on{background:var(--bg1);color:var(--txt1);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.seg .cnt{font-size:10px;padding:0 6px;border-radius:8px;background:var(--bg4);color:var(--txt2)}
+.score{font-weight:700;font-variant-numeric:tabular-nums}
+.s-hi{color:var(--teal)}.s-mid{color:var(--amber)}.s-lo{color:var(--coral)}
+.meter{height:6px;background:var(--bg3);border-radius:4px;overflow:hidden}.meter>i{display:block;height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* ===== LISTS ===== */
+.rank-row{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:8px;cursor:pointer;transition:background .12s}
+.rank-row:hover{background:var(--bg3)}
+.rank-pos{font-size:11px;font-weight:800;width:18px;text-align:center;color:var(--txt4)}
+.rank-pos.p1{color:#F5B524}.rank-pos.p2{color:#B8B8CC}.rank-pos.p3{color:#CD7C2F}
+.r-name{font-size:12.5px;font-weight:600}.r-meta{font-size:10.5px;color:var(--txt3)}
+.rank-row .r-meta,.rank-row .r-name,.alert-row .a-t,.alert-row .a-m{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alert-row{display:flex;gap:10px;padding:9px 6px;border-radius:8px;cursor:pointer;align-items:flex-start}
+.alert-row:hover{background:var(--bg3)}
+.adot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.a-t{font-size:12.5px;font-weight:600}.a-m{font-size:10.5px;color:var(--txt3);margin-top:2px}
+
+/* ===== HUB ===== */
+.hub-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.hub-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.hub-ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:12px}
+.hub-num{position:absolute;top:16px;right:16px;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.link-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.link-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;color:var(--txt1);text-decoration:none;transition:all .12s;background:var(--bg1)}
+.link-item:hover{border-color:var(--purple);background:var(--purple-bg)}
+
+/* ===== KANBAN ===== */
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:10px;overflow-x:auto;padding-bottom:6px}
+.kcol{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:10px;min-height:380px;transition:border-color .15s,background .15s}
+.kcol.over{border-color:var(--purple);background:var(--purple-bg)}
+.kcol-h{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin-bottom:10px;padding:0 2px}
+.kcard{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;cursor:grab;transition:transform .12s,box-shadow .12s}
+.kcard:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.kcard.dragging{opacity:.4}
+.kcard .kt{font-size:12px;font-weight:600;line-height:1.35;margin:6px 0 8px;white-space:normal}
+
+/* ===== DRAWER / MODAL / CMDK / TOAST ===== */
+.scrim{position:fixed;inset:0;background:rgba(5,5,10,.55);backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:.2s;z-index:80}
+.scrim.on{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100vw);background:var(--bg1);border-left:1px solid var(--border);z-index:90;transform:translateX(100%);transition:transform .3s cubic-bezier(.3,.7,.2,1);display:flex;flex-direction:column;box-shadow:var(--shadow);padding-top:var(--sat)}
+.drawer.on{transform:none}
+.dr-h{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
+.dr-b{flex:1;overflow-y:auto;padding:18px 20px}
+.dr-f{padding:12px 20px calc(12px + var(--sab));border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.dl{display:grid;grid-template-columns:120px 1fr;gap:8px 12px;font-size:12px;margin-bottom:16px}
+.dl dt{color:var(--txt3)}.dl dd{font-weight:500;white-space:normal}
+.sec-t{font-size:11px;font-weight:700;color:var(--txt3);margin:16px 0 8px}
+.transcript{display:flex;flex-direction:column;gap:6px}
+.msg{max-width:85%;padding:8px 11px;border-radius:11px;font-size:12px;line-height:1.45;white-space:normal}
+.msg.c{background:var(--bg3);align-self:flex-start;border-bottom-left-radius:3px}
+.msg.a{background:var(--purple-bg2);align-self:flex-end;border-bottom-right-radius:3px}
+.msg.flag{box-shadow:0 0 0 1px var(--coral) inset}
+.timeline{border-left:2px solid var(--border);margin-left:5px;padding-left:16px;display:flex;flex-direction:column;gap:12px}
+.tl{position:relative;font-size:12px}.tl::before{content:'';position:absolute;left:-22px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--bg1);border:2px solid var(--purple)}
+.tl .a-m{margin-top:1px}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-48%) scale(.98);width:min(460px,92vw);background:var(--bg1);border:1px solid var(--border2);border-radius:14px;z-index:95;opacity:0;visibility:hidden;transition:.2s;box-shadow:var(--shadow)}
+.modal.on{opacity:1;visibility:visible;transform:translate(-50%,-50%)}
+.modal .m-b{padding:20px}.modal .m-f{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+textarea.input{width:100%;min-height:80px;resize:vertical;line-height:1.45}
+.cmdk{position:fixed;left:50%;top:12vh;transform:translateX(-50%) translateY(-6px);width:min(620px,94vw);background:var(--bg1);border:1px solid var(--border2);border-radius:14px;z-index:100;box-shadow:var(--shadow);opacity:0;visibility:hidden;transition:.16s;overflow:hidden}
+.cmdk.on{opacity:1;visibility:visible;transform:translateX(-50%)}
+.cmdk input{width:100%;border:0;border-bottom:1px solid var(--border);background:transparent;padding:16px 18px;font-size:15px;outline:none}
+.cmdk-list{max-height:52vh;overflow-y:auto;padding:6px}
+.cmdk-g{font-size:10.5px;font-weight:700;color:var(--txt4);padding:9px 12px 4px}
+.cmdk-i{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:12.5px}
+.cmdk-i .mono{margin-left:auto}
+.cmdk-i.on{background:var(--purple-bg2);color:var(--txt1)}
+.toasts{position:fixed;right:18px;bottom:calc(18px + var(--sab));display:flex;flex-direction:column;gap:8px;z-index:120}
+.toast{display:flex;gap:10px;align-items:flex-start;background:var(--bg4);border:1px solid var(--border2);border-radius:11px;padding:11px 14px;min-width:280px;max-width:380px;box-shadow:var(--shadow);animation:tin .3s cubic-bezier(.3,.7,.2,1)}
+.toast b{display:block;font-size:12.5px}.toast span{font-size:11.5px;color:var(--txt2)}
+@keyframes tin{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.pop{position:absolute;top:46px;right:0;width:360px;background:var(--bg1);border:1px solid var(--border2);border-radius:12px;box-shadow:var(--shadow);z-index:70;display:none;overflow:hidden}
+.pop.on{display:block}
+.pop-h{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:700}
+
+/* ===== IA ===== */
+.chat{display:flex;flex-direction:column;height:min(64vh,620px)}
+.chat-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:4px 2px 12px}
+.bubble{max-width:88%;padding:11px 14px;border-radius:12px;line-height:1.55;font-size:12.5px;white-space:normal}
+.bubble.u{align-self:flex-end;background:var(--purple);color:#fff;border-bottom-right-radius:4px}
+.bubble.b{align-self:flex-start;background:var(--bg3);border:1px solid var(--border);border-bottom-left-radius:4px}
+.bubble.b strong{color:var(--purple2)}
+.chat-in{display:flex;gap:8px;border-top:1px solid var(--border);padding-top:12px}
+.chat-in .input{flex:1;padding:10px 12px}
+.cursor{display:inline-block;width:7px;height:14px;background:var(--purple2);vertical-align:-2px;animation:blink 1s steps(2) infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip{border:1px solid var(--border2);background:var(--bg2);padding:5px 10px;border-radius:999px;font-size:11.5px;cursor:pointer;color:var(--txt2)}
+.chip:hover{border-color:var(--purple);color:var(--txt1)}
+.insight{display:flex;gap:10px;padding:10px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;background:var(--bg1)}
+.insight .ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+
+/* ===== JOBS ===== */
+.job{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.job:last-child{border-bottom:0}
+.jstat{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.jstat.ok{background:var(--teal)}.jstat.run{background:var(--blue);animation:pulse 1.2s infinite}.jstat.fail{background:var(--coral)}
+.jprog{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:6px;display:none}.jprog>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--teal))}
+.console{background:#07070A;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:var(--mono);font-size:11px;line-height:1.7;height:300px;overflow-y:auto;color:#9AA0B8}
+[data-theme="light"] .console{background:#15131F}
+.console .ok{color:#22D3A8}.console .er{color:#F06060}.console .in{color:#A197FA}
+
+/* ===== SETTINGS ===== */
+.set-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.set-row:last-child{border-bottom:0}
+.set-row .txt{flex:1}
+.switch{width:38px;height:22px;border-radius:11px;background:var(--bg4);border:1px solid var(--border2);position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--txt3);transition:.2s}
+.switch.on{background:var(--purple);border-color:var(--purple)}.switch.on::after{left:18px;background:#fff}
+
+/* ===== RESPONSIVE ===== */
+.only-m{display:none}
+@media (max-width:1280px){.k6{grid-template-columns:repeat(3,minmax(0,1fr))}.k5{grid-template-columns:repeat(3,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1024px){.g21,.g12,.g32,.g2{grid-template-columns:minmax(0,1fr)}.k4{grid-template-columns:repeat(2,minmax(0,1fr))}.link-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){
+  .sidebar{position:fixed;inset:0 auto 0 0;transform:translateX(-100%)}.sidebar.on{transform:none;box-shadow:var(--shadow)}
+  .only-m{display:inline-flex}.hide-m{display:none!important}
+  .content{padding:14px 12px 28px}.topbar{padding:0 12px}
+}
+@media (max-width:640px){.k6,.k5,.k4,.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.link-grid{grid-template-columns:1fr}.search .input{width:150px}.kpi-value{font-size:20px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-rev" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-6"/></symbol>
+    <symbol id="i-mega" viewBox="0 0 24 24"><path d="m3 11 15-6v14L3 13z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v2M12 16v2"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0zM12 18v4"/></symbol>
+    <symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-dl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 4 14 8-14 8z"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8M15 7h6v6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="4" height="8" rx="1"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  </defs>
+</svg>
+
+<div class="shell">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="logo">
+        <div class="logo-mark"><div><svg class="i" style="color:var(--purple2)"><use href="#i-spark"/></svg></div></div>
+        <div><div class="logo-name">CORTEX</div><div class="logo-tag">Ops Intelligence · Vertex IA</div></div>
+      </div>
+      <div class="sb-field">
+        <div class="sb-label">Marca ativa</div>
+        <select class="select" id="g-brand" aria-label="Marca ativa"></select>
+      </div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sb-foot">
+      <div class="av" style="width:32px;height:32px;font-size:11px;background:linear-gradient(135deg,#7B6EF6,#22D3A8)">DM</div>
+      <div style="min-width:0"><div style="font-size:12px;font-weight:600">Diego M.</div><div class="r-meta">N3 Global · Vertex IA</div></div>
+      <span class="sso">SSO</span>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <header class="topbar">
+      <button class="btn icon-btn only-m" id="btn-menu" aria-label="Abrir menu"><svg class="i"><use href="#i-menu"/></svg></button>
+      <div style="min-width:0">
+        <div class="crumb hide-m">CORTEX / <span id="tb-group">Principal</span></div>
+        <div class="tb-title" id="tb-title">Visão Geral</div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="live hide-m"><i></i><span id="sync-label">Sincronizado agora</span></div>
+      <button class="btn search-trigger hide-m" id="btn-cmdk"><svg class="i"><use href="#i-search"/></svg>Buscar ou ir para…<span class="kbd">Ctrl K</span></button>
+      <select class="select sm" id="g-month" aria-label="Período" style="width:112px"></select>
+      <div style="position:relative">
+        <button class="btn icon-btn" id="btn-bell" aria-label="Notificações"><svg class="i"><use href="#i-bell"/></svg><span class="dot-count" id="bell-count">0</span></button>
+        <div class="pop" id="pop-bell"></div>
+      </div>
+      <button class="btn icon-btn" id="btn-theme" aria-label="Alternar tema"><svg class="i"><use href="#i-sun" id="theme-ic"/></svg></button>
+    </header>
+    <main class="content" id="content">
+      <section class="screen" id="s-visao"></section>
+      <section class="screen" id="s-hub"></section>
+      <section class="screen" id="s-monitoria"></section>
+      <section class="screen" id="s-cases"></section>
+      <section class="screen" id="s-revisoes"></section>
+      <section class="screen" id="s-dashboards"></section>
+      <section class="screen" id="s-reclame"></section>
+      <section class="screen" id="s-canais"></section>
+      <section class="screen" id="s-jira"></section>
+      <section class="screen" id="s-ia"></section>
+      <section class="screen" id="s-custos"></section>
+      <section class="screen" id="s-usuarios"></section>
+      <section class="screen" id="s-jobs"></section>
+      <section class="screen" id="s-settings"></section>
+    </main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-modal="true" role="dialog">
+  <div class="dr-h"><div style="flex:1;min-width:0" id="dr-head"></div><button class="btn icon-btn ghost" id="dr-close" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="dr-b" id="dr-body"></div>
+  <div class="dr-f" id="dr-foot"></div>
+</aside>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="m-b" id="m-body"></div><div class="m-f" id="m-foot"></div></div>
+<div class="cmdk" id="cmdk" role="dialog" aria-label="Paleta de comandos">
+  <input id="cmdk-in" placeholder="Buscar telas, analistas, IDs de atendimento, tarefas Jira…" autocomplete="off">
+  <div class="cmdk-list" id="cmdk-list"></div>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script>
+/* =====================================================================
+   CORTEX · Ops Intelligence — demo interativa com dados 100% fictícios
+   Arquitetura: DATA (mock determinístico) → STATE (filtros globais)
+   → selectors (agregações) → render por tela (ApexCharts + tabelas)
+   ===================================================================== */
+'use strict';
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const ic = (id, st='') => `<svg class="i" style="${st}"><use href="#i-${id}"/></svg>`;
+
+/* ---------- RNG determinístico ---------- */
+function mulberry32(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rnd = mulberry32(42026);
+const R = (a,b)=>a+(b-a)*rnd(), RI=(a,b)=>Math.floor(R(a,b+1)), pick=a=>a[Math.floor(rnd()*a.length)];
+const wpick=(a,w)=>{let r=rnd()*w.reduce((x,y)=>x+y,0);for(let i=0;i<a.length;i++){r-=w[i];if(r<=0)return a[i]}return a[a.length-1]};
+
+/* ---------- Formatação pt-BR ---------- */
+const nf = new Intl.NumberFormat('pt-BR');
+const N = v => v==null||isNaN(v)?'—':nf.format(Math.round(v));
+const P = (v,d=1)=> v==null||isNaN(v)?'—':v.toFixed(d).replace('.',',')+'%';
+const D = (v,d=1)=> v==null||isNaN(v)?'—':v.toFixed(d).replace('.',',');
+const K = v => v>=1e6?D(v/1e6,1)+' Mi':v>=1e4?D(v/1e3,0)+' mil':N(v);
+const T = s => s==null?'—':`${Math.floor(s/60)}m ${String(Math.round(s%60)).padStart(2,'0')}s`;
+const BRL = v => 'R$ '+v.toFixed(2).replace('.',','), USD = v => '$'+v.toFixed(2);
+const sclass = v => v>=9.5?'s-hi':v>=8.5?'s-mid':'s-lo';
+
+/* =====================================================================
+   1) DIMENSÕES
+   ===================================================================== */
+const MONTHS = ['mar/26','abr/26','mai/26','jun/26','jul/26','ago/26'];
+const BRANDS = ['BRAND ALPHA','BRAND BETA','BRAND GAMMA'];
+const BRAND_W = [1.0,.98,.47];
+const BRAND_C = ['#7B6EF6','#22D3A8','#F5A524'];
+const PILARES = {Fundamentos:['Escuta Ativa','Resolutividade','Proatividade'],Qualidade:['Termos a Evitar','Empatia','Postura'],Conformidade:['Prazos','Procedimentos','Registro']};
+const PILAR_LIST = Object.keys(PILARES);
+const CATS = Object.values(PILARES).flat();
+const CAT_W = [24,13,6,11,5,6,10,7,4];
+const SEV = ['Baixa','Média','Grave','Muito Grave'], SEV_W=[13,58,26,3], SEV_PEN=[.15,.4,1.1,2.4];
+const SEV_PILL = {Baixa:'p-blue','Média':'p-amber',Grave:'p-coral','Muito Grave':'p-coral'};
+const GRADS = ['#F59E0B,#EF4444','#60A5FA,#7B6EF6','#22D3A8,#3B82F6','#F59E0B,#22D3A8','#A78BFA,#EC4899','#34D399,#059669','#F472B6,#8B5CF6','#FB923C,#F43F5E'];
+
+const PEOPLE = [ // nome, nível, time, turno, parceiro, carga, skill
+ ['Gabriel Silva','N3','CS','Diurno','PARCEIRO A','44h',.97],['Mariana Oliveira','N3','CS','Diurno','PARCEIRO A','44h',.95],
+ ['Lucas Souza','N1','CS','Diurno','PARCEIRO B','40h',.94],['Felipe Alves','N2','CS','Noturno','VERTEX IA','44h',.92],
+ ['Beatriz Costa','N1','CS','Intermediário','PARCEIRO B','40h',.91],['Denis Vasconcelos','N2','CS','Diurno','PARCEIRO A','44h',.88],
+ ['Henrique Prado','N1','CS','Noturno','PARCEIRO B','40h',.80],['Bruno Sampaio','N2','CS','Intermediário','PARCEIRO A','44h',.86],
+ ['Ana Paula Lima','N1','CS','Diurno','PARCEIRO B','40h',.89],['Ricardo Teixeira','N2','CS','Noturno','VERTEX IA','12x36',.84],
+ ['Vinicius Moraes','N1','CS','Intermediário','PARCEIRO B','40h',.78],['Larissa Nogueira','N1','CS','Diurno','PARCEIRO A','40h',.90],
+ ['Juliana Martins','N2','AFO','Noturno','PARCEIRO A','12x36',.9],['Thiago Barros','N3','AFO','Diurno','VERTEX IA','12x36',.93],
+ ['Camila Rocha','N3 Global','GLOBAL','Intermediário','PARCEIRO A','44h',.95],['Rafael Mendes','N3','CS','Diurno','PARCEIRO A','44h',.93],
+ ['Diego M.','N3 Global','GLOBAL','Diurno','PARCEIRO A','44h',.96],['Marcos Ribeiro','N2','AFO','Diurno','PARCEIRO A','44h',.87]
+].map((p,i)=>({id:i,name:p[0],short:p[0].split(' ')[0]+' '+p[0].split(' ').slice(-1)[0][0]+'.',ini:p[0].split(' ').map(x=>x[0]).slice(0,2).join(''),
+  lvl:p[1],team:p[2],shift:p[3],partner:p[4],load:p[5],skill:p[6],grad:GRADS[i%GRADS.length],
+  email:p[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ /g,'.').replace('.paula','')+'@orion-ops.net',active:true}));
+const AGENTS = PEOPLE.filter(p=>p.team==='CS');
+const avatar = (p,sz=28)=>`<div class="av" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.36)}px;background:linear-gradient(135deg,${p.grad})">${p.ini}</div>`;
+
+/* =====================================================================
+   2) FATOS (mock)
+   ===================================================================== */
+let idSeq = 215475100000000;
+const nextId = () => String(idSeq += RI(1200,98000));
+const SNIPS_C = ['Olá, meu saque está pendente há 3 dias.','Já enviei os documentos duas vezes!','Por que meu bônus foi cancelado?','Não consigo acessar minha conta.','Quero encerrar minha conta agora.','O depósito não caiu no saldo.'];
+const SNIPS_A = ['Entendo sua frustração, vou verificar agora mesmo.','Obrigado por aguardar. Identifiquei o problema.','Seu caso foi encaminhado para o time responsável.','Posso ajudar em algo mais?','Conforme os termos, o prazo é de até 48h úteis.','Já registrei a solicitação com prioridade.'];
+
+// --- Auditorias de monitoria
+const AUDITS = [];
+MONTHS.forEach((_,m)=>BRANDS.forEach((b,bi)=>{
+  const n = Math.round(88*BRAND_W[bi]*R(.9,1.12)*(1+m*.04));
+  for(let k=0;k<n;k++){
+    const a = pick(AGENTS); const q = Math.min(.995,a.skill + (bi===1?-.03:bi===2?.02:0) + m*.004 + R(-.06,.05));
+    const nInf = rnd()>q-.3 ? (rnd()<.7?1:rnd()<.8?2:3) : 0;
+    const inf = Array.from({length:nInf},()=>{const c=wpick(CATS,CAT_W);return{cat:c,pilar:PILAR_LIST.find(p=>PILARES[p].includes(c)),sev:wpick(SEV,SEV_W)}});
+    const ps = {}; PILAR_LIST.forEach(p=>{ps[p]=Math.max(3,10-inf.filter(x=>x.pilar===p).reduce((s,x)=>s+SEV_PEN[SEV.indexOf(x.sev)]*R(2.2,3),0)-R(0,.25))});
+    const score = (ps.Fundamentos+ps.Qualidade+ps.Conformidade)/3;
+    const rated = rnd()<.42, pos = rated? rnd()< (q-.08) : null;
+    const grave = inf.some(x=>x.sev==='Grave'||x.sev==='Muito Grave');
+    AUDITS.push({id:nextId(),m,b:bi,a:a.id,ps,score,inf,rated,pos,just:rated&&!pos?(rnd()<.25?'Aprovado':'Negado'):null,
+      status: grave?(rnd()<.15?'Em revisão':'Infração grave'):'Auditado',day:RI(1,28),dur:RI(140,900),
+      tr:[[0,pick(SNIPS_C)],[1,pick(SNIPS_A)],[0,pick(SNIPS_C)],[1,pick(SNIPS_A)]]});
+  }}));
+
+// --- Volumetria / CS por marca-mês
+const VOL = [];
+MONTHS.forEach((_,m)=>BRANDS.forEach((b,bi)=>{
+  const conv = Math.round(1390*BRAND_W[bi]*R(.9,1.1)*(1-m*.025)), aval = Math.round(conv*R(.06,.085));
+  VOL.push({m,b:bi,conv,hum:Math.round(conv*R(.8,.88)),cvs:Math.round(conv*R(.055,.09)),aval,pos:Math.round(aval*R(.7,.9)+(bi===2?aval*.06:0)),
+    tmpr:R(85,135)-m*3,tmr:R(420,620),fcr:R(.62,.74),reinc:Math.round(conv*R(.12,.15)),
+    hours:Array.from({length:7},(_,d)=>Array.from({length:24},(_,h)=>Math.round(conv/180*(h<7?.25:h<10?.8:h<19?1.35:h<23?1.05:.5)*(d>4?.85:1)*R(.75,1.25))))});
+}));
+
+// --- Cases
+const CASE_CAT = {'Financeiro':['Saque não processado','Depósito não creditado','Estorno solicitado','Limite de saque'],
+  'Conta e Segurança':['KYC rejeitado','Conta bloqueada','Troca de titularidade','Acesso indevido'],
+  'Marketing e Bônus':['Rollover informado errado','Bônus cancelado','Free spins não creditados','Cashback divergente'],
+  'Compliance / Risk':['Alerta de SLA','Inconsistência de fluxo','Suspeita de menor de idade','Ameaça jurídica']};
+const SENT = ['Furioso','Frustrado','Ansioso','Neutro','Resignado'], SENT_C={Furioso:'p-coral',Frustrado:'p-amber',Ansioso:'p-blue',Neutro:'p-gray',Resignado:'p-purple'};
+const CASES = [];
+for(let i=0;i<260;i++){
+  const cat = wpick(Object.keys(CASE_CAT),[45,24,19,12]), bi=wpick([0,1,2],[42,40,18]), comp=cat==='Compliance / Risk';
+  const m = wpick([0,1,2,3,4,5],[8,10,12,15,22,33]);
+  CASES.push({id:nextId(),b:bi,m,day:RI(1,28),cat,intent:pick(CASE_CAT[cat]),sent:comp?wpick(SENT,[6,3,1,0,0]):wpick(SENT,[2,4,3,3,1]),
+    risk:comp?'Crítico':wpick(['Alto','Médio','Baixo'],[3,4,4]),a:pick(AGENTS).id,jira:comp||rnd()<.12?`CS${['ALPHA','BETA','GAMMA'][bi]}-${RI(1000,1200)}`:null,
+    open:m===5&&rnd()<.55, hours:RI(1,70)});
+}
+
+// --- Revisões
+const REV_TYPES=['Remover Infração','Reduzir Gravidade','Contestação Abono'];
+const REVIEWS = [];
+AUDITS.filter(a=>a.inf.length).slice(-160).filter(()=>rnd()<.3).forEach((a,i)=>{
+  const recent = a.m===5;
+  REVIEWS.push({id:'REV-'+String(i+1).padStart(3,'0'),aud:a.id,b:a.b,m:a.m,type:pick(REV_TYPES),pilar:a.inf[0].pilar,cat:a.inf[0].cat,req:a.a,
+    status: recent? wpick(['Pendente IA','Precisa Humano','Concluída IA','Concluída Humana'],[3,2,8,2]) : wpick(['Concluída IA','Concluída Humana'],[8,2]),
+    reason: pick(['Não concordo com a interpretação do pilar','Cliente confirmou resolução posteriormente','Fator externo (instabilidade PayGateway)','Termo usado conforme procedimento vigente']),
+    result:null});
+});
+REVIEWS.forEach(r=>{if(r.status.startsWith('Concluída'))r.result=rnd()<.62?'Mantida':'Revertida'});
+
+// --- Reclame Aqui
+const RA = [];
+for(let i=0;i<120;i++){const bi=wpick([0,1,2],[55,20,25]),m=RI(0,5),res=rnd()<.88;
+  RA.push({id:String(RI(238000000,253000000)),b:bi,m,day:RI(1,28),resp:pick(AGENTS).id,type:pick(['KYC','Saque','Falha Técnica','Política/T.U.','Bônus','Bloqueio']),
+    lvl:wpick(['BAIXO','MÉDIO','ALTO'],[6,3,1]),res,back:res?wpick(['Sim','Não','Pendente'],[5,2,3]):'Não',nota:res&&rnd()<.6?RI(4,10):null})}
+
+// --- Canais externos
+const CHANNELS = ['Consumidor.gov','Ouvidoria','PROCON','Denúncia','Intimação Judicial'];
+const CH = [];
+for(let i=0;i<70;i++){const c=wpick(CHANNELS,[55,18,14,8,5]);const m=wpick([0,1,2,3,4,5],[6,8,10,12,16,28]);
+  CH.push({id:'EXT-'+(4100+i),ch:c,b:wpick([0,1,2],[55,28,17]),m,owner:pick(PEOPLE.filter(p=>p.lvl!=='N1')).id,sla:c==='Intimação Judicial'?15:c==='PROCON'?10:c==='Consumidor.gov'?10:7,
+    elapsed:0,status:m<5?'Encerrado':wpick(['Aberto','Em análise','Respondido','Encerrado'],[3,3,2,2]),subject:pick(['Saque retido','Encerramento de conta','Publicidade enganosa','Bloqueio indevido','Dados pessoais (LGPD)'])})}
+
+CH.forEach(c=>c.elapsed=Math.max(1,Math.round(c.sla*R(.1,1.15))));
+
+// --- Jira
+const PROJ = ['CSALPHA','CSBETA','CSGAMMA','PMALPHA','PABETA','PMGAMMA'];
+const JSTAT = ['A Fazer','Em Andamento','Em Revisão','Feita'], JPRI=['Highest','High','Medium','Low'];
+const JIRA = [];
+for(let i=0;i<150;i++){const p=wpick(PROJ,[30,26,12,14,10,8]);
+  JIRA.push({key:`${p}-${RI(40,11800)}`,proj:p,b:p.includes('ALPHA')?0:p.includes('BETA')?1:2,team:p.startsWith('CS')?'CS':'AFO',
+    sum:pick(['Bloqueio por inconsistência de fluxo','Instabilidade saques — PayGateway','KYC travado no provedor','Ajuste macro de resposta','Fallback IP whitelist PSP','Divergência de rollover','Revisão de procedimento de estorno','Alerta de SLA em fila N2']),
+    st:wpick(JSTAT,[20,14,6,60]),pri:wpick(JPRI,[1,4,10,4]),a:pick(PEOPLE).id,m:wpick([0,1,2,3,4,5],[6,8,10,14,22,40]),day:RI(1,28)})}
+
+// --- Custos IA (USD por auditoria por etapa)
+const STAGES = [['Triagem Contextual',.0016],['Auditor Conformidade',.00037],['Auditor Qualidade',.00022],['Auditor Fundamentos',.00017],['Revisor Anti-FP',.00008],['Juiz Abono CSAT',.00003]];
+const FX = 5.30;
+
+// --- Jobs
+const JOBS = [
+ ['[ALPHA] Sync Download Base','Baixa datasets Intercom BRAND ALPHA','A cada 6h','CRON',2],['[BETA] Sync Download Base','Baixa datasets Intercom BRAND BETA','A cada 6h','CRON',8],
+ ['[GAMMA] Sync Download Base','Baixa datasets Intercom BRAND GAMMA','A cada 6h','CRON',14],['[Monitoria Auto] Auditoria ALPHA','Auditoria IA das conversas BRAND ALPHA','A cada 8h','CRON',60],
+ ['[Monitoria Auto] Auditoria BETA','Auditoria IA das conversas BRAND BETA','A cada 8h','CRON',70],['[Jira] Sync Delta 12h','Sincroniza chamados recentes do Jira','2x/dia','CRON',180],
+ ['[Confluence] Sync Delta 12h','Sincroniza documentações recentes','2x/dia','CRON',190],['[Confluence] Webhook Matriz Audit','Captura edições na Matriz de Auditoria','Tempo real','WEBHOOK',1],
+ ['[Sistema] Captura Global de Erros','Alerta no Slack se qualquer fluxo falhar','Tempo real','EVENT',0],['[Intercom] Fechamento Diário D-1','Consolida relatório do dia anterior','1x/dia','CRON',360],
+ ['[Intercom] Notificador Parcial 6h','Volumetria, canais e CSAT por janela de 6h','4x/dia','CRON',45],['[Monitoria CS] Report Diário','Árvore de infrações e gravidades por atendente','1x/dia','CRON',360]
+].map((j,i)=>({id:i,name:j[0],desc:j[1],freq:j[2],kind:j[3],ago:j[4]*60,status:'ok',hist:Array.from({length:14},()=>({ok:RI(3,8),fail:rnd()<.12?1:0})),dur:RI(8,95)}));
+
+/* =====================================================================
+   3) ESTADO GLOBAL + PERSISTÊNCIA
+   ===================================================================== */
+const store = {get(k,d){try{const v=localStorage.getItem('cortex:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('cortex:'+k,JSON.stringify(v))}catch(e){}}};
+const G = {brand: store.get('brand','all'), m: 5, screen: 'visao', theme: store.get('theme','dark')};
+const UI = {}; // estado local por tela (filtros, ordenação, página)
+const NOTIF = [];
+const inBrand = r => G.brand==='all' || r.b==G.brand;
+const atM = (r,m=G.m)=> r.m===m;
+
+/* ---------- Seletores / agregações ---------- */
+function auditAgg(rows){
+  const n=rows.length, s={n,score:null,ps:{},inf:0,sev:SEV.map(()=>0),cat:CATS.map(()=>0),rated:0,pos:0,just:0,grave:0};
+  if(!n) return s;
+  let sc=0; PILAR_LIST.forEach(p=>s.ps[p]=0);
+  rows.forEach(a=>{sc+=a.score;PILAR_LIST.forEach(p=>s.ps[p]+=a.ps[p]);a.inf.forEach(x=>{s.inf++;s.sev[SEV.indexOf(x.sev)]++;s.cat[CATS.indexOf(x.cat)]++});
+    if(a.rated){s.rated++;if(a.pos)s.pos++;if(a.pos||a.just==='Aprovado')s.just++}});
+  s.score=sc/n; PILAR_LIST.forEach(p=>s.ps[p]/=n);
+  s.csat=s.rated?s.pos/s.rated*100:null; s.csatJ=s.rated?s.just/s.rated*100:null; s.grave=s.sev[2]+s.sev[3];
+  return s;
+}
+function volAgg(rows){
+  const s={conv:0,hum:0,cvs:0,aval:0,pos:0,reinc:0,tmpr:0,tmr:0,fcr:0};
+  rows.forEach(v=>{['conv','hum','cvs','aval','pos','reinc'].forEach(k=>s[k]+=v[k]);s.tmpr+=v.tmpr*v.conv;s.tmr+=v.tmr*v.conv;s.fcr+=v.fcr*v.conv});
+  if(s.conv){s.tmpr/=s.conv;s.tmr/=s.conv;s.fcr=s.fcr/s.conv*100}
+  s.csat=s.aval?s.pos/s.aval*100:null; s.cvr=s.conv?s.cvs/s.conv*100:null; return s;
+}
+const A = (m=G.m)=>AUDITS.filter(a=>inBrand(a)&&a.m===m);
+const V = (m=G.m)=>VOL.filter(v=>inBrand(v)&&v.m===m);
+const series = (fn)=>MONTHS.map((_,m)=>fn(m));
+function costAgg(m=G.m){const n=A(m).length;const per=STAGES.map(([nm,c])=>({nm,usd:c*n}));const usd=per.reduce((s,x)=>s+x.usd,0);return{n,per,usd,brl:usd*FX,tokens:n*14900}}
+function agentRank(m=G.m){
+  const g={};A(m).forEach(a=>(g[a.a]??=[]).push(a));
+  return Object.entries(g).map(([id,rs])=>({p:PEOPLE[id],...auditAgg(rs)})).filter(x=>x.n>=3).sort((a,b)=>b.score-a.score);
+}
+
+/* ---------- Deltas ---------- */
+function delta(cur,prev,{pct=false,inv=false,unit='',fmt}={}){
+  if(cur==null||prev==null) return `<span class="delta flat">— vs P.A.</span>`;
+  const d = pct? cur-prev : (prev? (cur-prev)/prev*100 : 0);
+  const good = inv? d<=0 : d>=0, cls = Math.abs(d)<.05?'flat':good?'up':'down';
+  const txt = fmt? fmt(Math.abs(cur-prev)) : (pct? D(Math.abs(d))+' p.p.' : D(Math.abs(d))+'%');
+  return `<span class="delta ${cls}">${d>=0?'▲':'▼'} ${txt}${unit} <span style="color:var(--txt3);font-weight:500">vs P.A.</span></span>`;
+}
+
+/* =====================================================================
+   4) INFRA DE UI — charts, tabelas, drawer, modal, toast, cmdk
+   ===================================================================== */
+const CH_REG = {};
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function apex(el, opt){
+  const node = typeof el==='string'? document.querySelector(el) : el; if(!node) return;
+  const key = node.id || (node.id = 'ch'+Math.random().toString(36).slice(2,8));
+  CH_REG[key]?.destroy();
+  const base = {chart:{background:'transparent',foreColor:css('--txt3'),fontFamily:'Inter, sans-serif',toolbar:{show:false},zoom:{enabled:false},
+      animations:{enabled:true,easing:'easeinout',speed:600,dynamicAnimation:{speed:450}},parentHeightOffset:0},
+    theme:{mode:G.theme}, grid:{borderColor:css('--border'),strokeDashArray:3,padding:{left:6,right:6}}, dataLabels:{enabled:false},
+    tooltip:{theme:G.theme}, legend:{labels:{colors:css('--txt2')},fontSize:'11px',markers:{width:8,height:8,radius:8}},
+    states:{active:{filter:{type:'none'}},hover:{filter:{type:'lighten',value:.06}}}, stroke:{width:2,curve:'smooth'},
+    xaxis:{axisBorder:{show:false},axisTicks:{show:false},labels:{style:{fontSize:'10.5px'}}},yaxis:{labels:{style:{fontSize:'10.5px'}}}};
+  const merged = deepMerge(base,opt);
+  if(['bar','heatmap','radialBar','donut','treemap'].includes(merged.chart.type)&&!opt.stroke) merged.stroke={width:merged.chart.type==='heatmap'?2:0,colors:merged.chart.type==='heatmap'?[css('--bg2')]:undefined};
+  const c = new ApexCharts(node, merged); c.render(); CH_REG[key]=c; return c;
+}
+function deepMerge(a,b){const o=Array.isArray(a)?[...a]:{...a};for(const k in b){const v=b[k];o[k]=(v&&typeof v==='object'&&!Array.isArray(v)&&a[k]&&typeof a[k]==='object'&&!Array.isArray(a[k]))?deepMerge(a[k],v):v}return o}
+const spark = (el,data,color)=>apex(el,{chart:{type:'area',height:34,sparkline:{enabled:true},animations:{speed:500}},series:[{data:data.map(v=>v==null?null:+v.toFixed(2))}],
+  colors:[color],fill:{type:'gradient',gradient:{opacityFrom:.35,opacityTo:0}},stroke:{width:1.6},tooltip:{enabled:false}});
+
+/* ---------- KPI card ---------- */
+function kpi({id,label,value,sub='',deltaHtml='',accent='var(--purple)',tip='',click=''}){
+  return `<div class="kpi ${click?'click':''}" style="--accent:${accent}" ${click?`onclick="${click}" tabindex="0"`:''}>
+    <div class="kpi-label">${label}${tip?`<span class="info">${ic('info','width:12px;height:12px')}<span class="tip">${tip}</span></span>`:''}</div>
+    <div class="kpi-value num" data-count="${id||''}">${value}</div>
+    <div class="kpi-row">${deltaHtml}</div>${sub?`<div class="kpi-sub">${sub}</div>`:''}
+    ${id?`<div class="spark" id="sp-${id}"></div>`:''}</div>`;
+}
+
+/* ---------- Tabela genérica (ordenação, paginação, clique, CSV) ---------- */
+function table(id, {cols, rows, size=10, onRow, empty='Nenhum registro para os filtros atuais.'}){
+  const st = UI[id] ??= {sort:null,asc:false,page:0};
+  let data=[...rows];
+  if(st.sort!=null){const c=cols[st.sort];const f=c.sv||(r=>r[c.k]);data.sort((x,y)=>{const a=f(x),b=f(y);return (typeof a==='string'?a.localeCompare(b):(a??-1e9)-(b??-1e9))*(st.asc?1:-1)})}
+  const pages=Math.max(1,Math.ceil(data.length/size)); st.page=Math.min(st.page,pages-1);
+  const slice=data.slice(st.page*size,st.page*size+size);
+  const el=document.getElementById(id); if(!el) return;
+  el._rows=data; el._cols=cols;
+  el.innerHTML = `<div class="tscroll"><table><thead><tr>${cols.map((c,i)=>`<th class="${c.ns?'nosort':''} ${st.sort===i?'sorted'+(st.asc?' asc':''):''}" data-i="${i}" style="${c.w?'width:'+c.w:''}">${c.l}</th>`).join('')}</tr></thead>
+    <tbody>${slice.length?slice.map((r,ri)=>`<tr class="${onRow?'rowlink':''}" data-ri="${ri}">${cols.map(c=>`<td style="${c.st||''}">${c.f?c.f(r):r[c.k]??'—'}</td>`).join('')}</tr>`).join('')
+      :`<tr><td colspan="${cols.length}"><div class="empty"><b>Sem resultados</b>${empty}</div></td></tr>`}</tbody></table></div>
+    <div class="pager"><span>${data.length?`${st.page*size+1}–${Math.min(data.length,(st.page+1)*size)} de ${N(data.length)}`:'0 registros'}</span>
+      <div class="btns"><button class="btn sm" data-pg="-1" ${st.page===0?'disabled':''}>Anterior</button><button class="btn sm" data-pg="1" ${st.page>=pages-1?'disabled':''}>Próxima</button></div></div>`;
+  el.querySelectorAll('th:not(.nosort)').forEach(th=>th.onclick=()=>{const i=+th.dataset.i;if(st.sort===i)st.asc=!st.asc;else{st.sort=i;st.asc=false}table(id,{cols,rows,size,onRow,empty})});
+  el.querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{st.page+=+b.dataset.pg;table(id,{cols,rows,size,onRow,empty})});
+  if(onRow) el.querySelectorAll('tbody tr.rowlink').forEach(tr=>tr.onclick=e=>{if(e.target.closest('button'))return;onRow(slice[+tr.dataset.ri])});
+}
+function exportCSV(id,name){
+  const el=document.getElementById(id); if(!el?._rows) return;
+  const strip=h=>String(h).replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+  const cols=el._cols.filter(c=>!c.ns);
+  const csv=[cols.map(c=>strip(c.l)).join(';'),...el._rows.map(r=>cols.map(c=>'"'+strip(c.f?c.f(r):r[c.k]??'').replace(/"/g,'""')+'"').join(';'))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));a.download=`cortex_${name}_${MONTHS[G.m].replace('/','-')}.csv`;a.click();
+  toast('Exportação concluída',`${N(el._rows.length)} linhas em ${a.download}`,'teal');
+}
+
+/* ---------- Drawer / Modal ---------- */
+function openDrawer(head, body, foot='', after){
+  $('#dr-head').innerHTML=head; $('#dr-body').innerHTML=body; $('#dr-foot').innerHTML=foot; $('#dr-foot').style.display=foot?'flex':'none';
+  $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); $('#dr-body').scrollTop=0;
+  setTimeout(()=>after&&after(),60); setTimeout(()=>$('#dr-close').focus(),50);
+}
+function closeDrawer(){ $('#drawer').classList.remove('on'); if(!$('#modal').classList.contains('on')&&!$('#sidebar').classList.contains('on'))$('#scrim').classList.remove('on') }
+function openModal(body,foot){ $('#m-body').innerHTML=body; $('#m-foot').innerHTML=foot; $('#modal').classList.add('on'); $('#scrim').classList.add('on') }
+function closeModal(){ $('#modal').classList.remove('on'); if(!$('#drawer').classList.contains('on'))$('#scrim').classList.remove('on') }
+
+/* ---------- Toast + notificações ---------- */
+function toast(t,s='',tone='purple'){
+  const el=document.createElement('div'); el.className='toast';
+  el.innerHTML=`<div class="adot" style="background:var(--${tone})"></div><div><b>${t}</b><span>${s}</span></div>`;
+  $('#toasts').appendChild(el); setTimeout(()=>{el.style.transition='.3s';el.style.opacity=0;el.style.transform='translateY(8px)';setTimeout(()=>el.remove(),300)},3800);
+}
+function notify(t,s,tone='purple',go){NOTIF.unshift({t,s,tone,go,at:Date.now(),read:false});renderBell()}
+
+/* ---------- Count-up nos KPIs ---------- */
+function countUp(root){
+  root.querySelectorAll('.kpi-value').forEach(el=>{
+    const txt=el.textContent, m=txt.match(/-?[\d.]+(,\d+)?/); if(!m||txt.includes('m ')) return;
+    const raw=m[0], target=parseFloat(raw.replace(/\./g,'').replace(',','.')), dec=(raw.split(',')[1]||'').length;
+    if(isNaN(target)) return; const t0=performance.now();
+    const step=t=>{const p=Math.min(1,(t-t0)/700),e=1-Math.pow(1-p,3),v=target*e;
+      el.textContent=txt.replace(raw, dec? v.toFixed(dec).replace('.',',') : nf.format(Math.round(v))); if(p<1)requestAnimationFrame(step)};
+    requestAnimationFrame(step);
+  });
+}
+</script>
+<script>
+/* =====================================================================
+   5) NAVEGAÇÃO
+   ===================================================================== */
+const NAV = [
+  {g:'Principal',items:[['visao','Visão Geral','home'],['hub','Hub CS / AFO','grid']]},
+  {g:'Monitoria',items:[['monitoria','Monitoria IA','shield',()=>A().filter(a=>a.status==='Em revisão').length],['cases','Cases','chat',()=>CASES.filter(c=>c.open&&c.risk==='Crítico'&&inBrand(c)).length],['revisoes','Revisões','rev',()=>REVIEWS.filter(r=>inBrand(r)&&(r.status==='Pendente IA'||r.status==='Precisa Humano')).length]]},
+  {g:'Análise',items:[['dashboards','Dashboards','chart'],['reclame','Reclame Aqui','mega'],['canais','Canais Externos','globe'],['jira','Jira / Tarefas','check'],['ia','Análise IA','spark','BETA'],['custos','Custos IA','coin']]},
+  {g:'Sistema',items:[['usuarios','Usuários','users'],['jobs','Conectores & Jobs','plug'],['settings','Configurações','cog']]}
+];
+const TITLES = Object.fromEntries(NAV.flatMap(g=>g.items.map(i=>[i[0],[i[1],g.g]])));
+function renderNav(){
+  $('#nav').innerHTML = NAV.map(g=>`<div class="nav-grp-label">${g.g}</div>`+g.items.map(([id,l,i,b])=>{
+    const v = typeof b==='function'? b() : b;
+    return `<button class="nav-item ${G.screen===id?'active':''}" data-go="${id}">${ic(i)}${l}${v?`<span class="nav-badge ${typeof b==='string'?'blue':''}" id="nb-${id}">${v}</span>`:''}</button>`}).join('')).join('');
+  $$('#nav [data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+}
+function go(id, opts={}){
+  G.screen=id; Object.assign(UI[id+'_f'] ??= {}, opts);
+  $$('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+id));
+  $('#tb-title').textContent=TITLES[id][0]; $('#tb-group').textContent=TITLES[id][1];
+  $('#sidebar').classList.remove('on'); if(!$('#drawer').classList.contains('on'))$('#scrim').classList.remove('on');
+  renderNav(); render(); $('#content').scrollTop=0;
+}
+function render(anim=true){
+  const el = document.getElementById('s-'+G.screen); SCREENS[G.screen](el); if(anim) countUp(el);   // count-up só em navegação/filtros
+}
+const brandName = ()=> G.brand==='all'?'Todas as marcas':BRANDS[G.brand];
+const head = (t,s,actions='')=>`<div class="page-head"><div><div class="page-title">${t}</div><div class="page-sub">${s}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap">${actions}</div></div>`;
+const ctx = ()=>`${brandName()} · ${MONTHS[G.m]}`;
+const segH = (id,opts,cur,cb)=>`<div class="seg" data-seg="${id}">${opts.map(([v,l,c])=>`<button class="${String(v)===String(cur)?'on':''}" data-v="${v}">${l}${c!=null?`<span class="cnt">${c}</span>`:''}</button>`).join('')}</div>`;
+function bindSeg(root,id,cb){root.querySelectorAll(`[data-seg="${id}"] button`).forEach(b=>b.onclick=()=>cb(b.dataset.v))}
+
+/* =====================================================================
+   6) TELAS
+   ===================================================================== */
+const SCREENS = {};
+
+/* ---------------- VISÃO GERAL ---------------- */
+SCREENS.visao = el=>{
+  const a=auditAgg(A()), ap=auditAgg(A(G.m-1)), v=volAgg(V()), vp=volAgg(V(G.m-1));
+  const ra=RA.filter(r=>inBrand(r)&&atM(r)), rap=RA.filter(r=>inBrand(r)&&atM(r,G.m-1));
+  const jOpen=JIRA.filter(j=>inBrand(j)&&j.st!=='Feita').length;
+  const rank=agentRank().slice(0,6);
+  const crit=CASES.filter(c=>inBrand(c)&&c.open&&(c.risk==='Crítico'||c.sent==='Furioso')).slice(0,5);
+  el.innerHTML = head('Visão Geral',`Pulso consolidado da operação · ${ctx()}`,
+    `<button class="btn" onclick="go('ia')">${ic('spark')}Perguntar à IA</button><button class="btn primary" onclick="genReport()">${ic('dl')}Relatório executivo</button>`)+
+  `<div class="kpis k4">
+    ${kpi({id:'csat',label:'CSAT %',value:P(v.csat),deltaHtml:delta(v.csat,vp.csat,{pct:true}),sub:`Justificado: ${P(a.csatJ)}`,accent:'var(--teal)',tip:'Avaliações positivas ÷ avaliações recebidas no período.',click:"go('dashboards',{tab:'cs'})"})}
+    ${kpi({id:'score',label:'Score Monitoria',value:D(a.score,2),deltaHtml:delta(a.score,ap.score,{pct:true,fmt:x=>D(x,2)}),sub:`${N(a.n)} auditorias · cobertura ${P(Math.min(100,a.n/(v.hum*.13)*100))}`,tip:'Média dos pilares Fundamentos, Qualidade e Conformidade (0–10).',click:"go('monitoria')"})}
+    ${kpi({id:'fcr',label:'FCR',value:P(v.fcr),deltaHtml:v.fcr<75?'<span class="delta warn">Abaixo da meta de 75%</span>':delta(v.fcr,vp.fcr,{pct:true}),sub:'Resolução no primeiro contato',accent:'var(--amber)',click:"go('dashboards',{tab:'cs'})"})}
+    ${kpi({id:'inf',label:'Infrações',value:N(a.inf),deltaHtml:delta(a.inf,ap.inf,{inv:true}),sub:`${N(a.grave)} graves · ${N(REVIEWS.filter(r=>inBrand(r)&&r.m===G.m).length)} revisões`,accent:'var(--coral)',click:"go('monitoria')"})}
+    ${kpi({id:'tmpr',label:'TMPR',value:T(v.tmpr),deltaHtml:delta(v.tmpr,vp.tmpr,{inv:true,pct:true,fmt:x=>Math.round(x)+'s'}),sub:'Tempo médio de 1ª resposta',accent:'var(--blue)'})}
+    ${kpi({id:'cvr',label:'Conversão',value:P(v.cvr),deltaHtml:delta(v.cvr,vp.cvr,{pct:true}),sub:`${N(v.aval)} avaliações`,accent:'var(--green)'})}
+    ${kpi({id:'ra',label:'Reclame Aqui',value:N(ra.length),deltaHtml:delta(ra.length,rap.length,{inv:true}),sub:`Resolvidas: ${P(ra.filter(r=>r.res).length/Math.max(1,ra.length)*100,0)}`,accent:'var(--amber)',click:"go('reclame')"})}
+    ${kpi({id:'jira',label:'Tarefas Jira abertas',value:N(jOpen),deltaHtml:`<span class="delta flat">${N(JIRA.filter(inBrand).length)} no total</span>`,sub:'CS + AFO',accent:'var(--purple)',click:"go('jira')"})}
+  </div>
+  <div class="g g21">
+    <div class="card"><div class="card-h"><div><div class="card-t">Volume e satisfação</div><div class="card-s">Conversas por marca (colunas) e CSAT (linha) · clique num mês para mudar o período</div></div></div><div id="vg-combo"></div></div>
+    <div class="card"><div class="card-h"><div><div class="card-t">Ranking de analistas</div><div class="card-s">Score geral · ${MONTHS[G.m]}</div></div><button class="link" onclick="go('usuarios')">Ver todos</button></div>
+      ${rank.map((r,i)=>`<div class="rank-row" onclick="agentDrawer(${r.p.id})"><div class="rank-pos ${i<3?'p'+(i+1):''}">${i+1}</div>${avatar(r.p,28)}
+        <div style="flex:1;min-width:0"><div class="r-name">${r.p.name}</div><div class="r-meta">${r.p.lvl} · ${r.p.shift} · ${r.p.partner} · ${r.n} aud.</div></div>
+        <div style="width:70px"><div class="meter"><i style="width:${(r.score-7)/3*100}%;background:var(--purple)"></i></div></div><div class="score ${sclass(r.score)}" style="width:38px;text-align:right">${D(r.score,2)}</div></div>`).join('')||'<div class="empty">Sem auditorias.</div>'}
+    </div>
+  </div>
+  <div class="g g3">
+    <div class="card"><div class="card-h"><div><div class="card-t">Infrações por pilar</div><div class="card-s">Clique para abrir na Monitoria</div></div></div><div id="vg-pilar"></div></div>
+    <div class="card"><div class="card-h"><div><div class="card-t">Score por marca</div><div class="card-s">Clique numa barra para filtrar a marca</div></div></div><div id="vg-brand"></div></div>
+    <div class="card"><div class="card-h"><div><div class="card-t">Alertas ativos</div><div class="card-s">Cases críticos em aberto</div></div><button class="link" onclick="go('cases',{risk:'Crítico'})">Ver todos</button></div>
+      ${crit.length?crit.map(c=>`<div class="alert-row" onclick="caseDrawer('${c.id}')"><div class="adot" style="background:var(--${c.risk==='Crítico'?'coral':'amber'})"></div>
+        <div style="min-width:0"><div class="a-t">${c.intent} · ${BRANDS[c.b]}</div><div class="a-m"><span class="mono">${c.id}</span> · ${PEOPLE[c.a].short} · há ${c.hours}h · ${c.risk.toUpperCase()}</div></div></div>`).join('')
+      :'<div class="empty"><b>Nenhum alerta</b>Operação estável para este recorte.</div>'}
+    </div>
+  </div>`;
+  // sparklines
+  const sA=series(m=>auditAgg(A(m))), sV=series(m=>volAgg(V(m)));
+  spark('#sp-csat',sV.map(x=>x.csat),css('--teal'));spark('#sp-score',sA.map(x=>x.score),css('--purple'));spark('#sp-fcr',sV.map(x=>x.fcr),css('--amber'));
+  spark('#sp-inf',sA.map(x=>x.inf),css('--coral'));spark('#sp-tmpr',sV.map(x=>x.tmpr),css('--blue'));spark('#sp-cvr',sV.map(x=>x.cvr),css('--green'));
+  spark('#sp-ra',series(m=>RA.filter(r=>inBrand(r)&&r.m===m).length),css('--amber'));spark('#sp-jira',series(m=>JIRA.filter(j=>inBrand(j)&&j.m===m).length),css('--purple'));
+  // combo
+  const bset = G.brand==='all'?[0,1,2]:[+G.brand];
+  apex('#vg-combo',{chart:{type:'line',height:290,stacked:true,events:{dataPointSelection:(e,c,{dataPointIndex:i})=>{setMonth(i)}}},
+    series:[...bset.map(b=>({name:BRANDS[b],type:'column',data:MONTHS.map((_,m)=>VOL.find(v=>v.b===b&&v.m===m).conv)})),{name:'CSAT %',type:'line',data:sV.map(x=>+x.csat.toFixed(1))}],
+    colors:[...bset.map(b=>BRAND_C[b]),css('--coral')],stroke:{width:[...bset.map(()=>0),3]},markers:{size:[...bset.map(()=>0),4]},
+    plotOptions:{bar:{columnWidth:'52%',borderRadius:4,borderRadiusApplication:'end',borderRadiusWhenStacked:'last'}},
+    fill:{opacity:MONTHS.map(()=>1)},xaxis:{categories:MONTHS},
+    yaxis:[...bset.map((b,i)=>({seriesName:BRANDS[bset[0]],show:i===0,labels:{formatter:v=>K(v)}})),{opposite:true,min:50,max:100,seriesName:'CSAT %',labels:{formatter:v=>v.toFixed(0)+'%'}}],
+    annotations:{xaxis:[{x:MONTHS[G.m],borderColor:css('--purple'),fillColor:css('--purple'),opacity:.08,label:{text:'Período ativo',orientation:'horizontal',offsetY:-6,style:{background:css('--purple'),color:'#fff',fontSize:'10px'}}}]},
+    legend:{position:'top',horizontalAlign:'left'},tooltip:{shared:true,intersect:false,y:{formatter:(v,{seriesIndex})=>seriesIndex===bset.length?P(v):N(v)}}});
+  // pilar donut
+  const pil = PILAR_LIST.map(p=>A().reduce((s,x)=>s+x.inf.filter(i=>i.pilar===p).length,0));
+  apex('#vg-pilar',{chart:{type:'donut',height:240,events:{dataPointSelection:(e,c,{dataPointIndex:i})=>go('monitoria',{pilar:PILAR_LIST[i]})}},series:pil,labels:PILAR_LIST,
+    colors:[css('--purple'),css('--teal'),css('--coral')],stroke:{width:0},legend:{position:'bottom'},
+    plotOptions:{pie:{donut:{size:'70%',labels:{show:true,value:{fontSize:'22px',fontWeight:800,color:css('--txt1')},total:{show:true,label:'Infrações',color:css('--txt3'),formatter:w=>N(w.globals.seriesTotals.reduce((a,b)=>a+b,0))}}}}}});
+  // brand bars
+  const bs = BRANDS.map((_,b)=>auditAgg(AUDITS.filter(x=>x.b===b&&x.m===G.m)).score);
+  apex('#vg-brand',{chart:{type:'bar',height:240,events:{dataPointSelection:(e,c,{dataPointIndex:i})=>setBrand(String(G.brand==i?'all':i))}},
+    series:[{name:'Score',data:bs.map((s,i)=>({x:BRANDS[i],y:+s.toFixed(2),fillColor:G.brand==='all'||G.brand==i?BRAND_C[i]:BRAND_C[i]+'40'}))}],
+    plotOptions:{bar:{horizontal:true,barHeight:'52%',borderRadius:5,dataLabels:{position:'top'}}},dataLabels:{enabled:true,offsetX:28,style:{colors:[css('--txt1')],fontSize:'12px',fontWeight:700},formatter:v=>D(v,2)},
+    xaxis:{min:7,max:10.5,labels:{formatter:v=>D(+v,1)}},yaxis:{labels:{style:{colors:css('--txt2'),fontSize:'11.5px'}}},tooltip:{y:{formatter:v=>D(v,2)}}});
+};
+
+/* ---------------- HUB ---------------- */
+const LINKS = {
+  0:[['Intercom BRAND ALPHA','Atendimento','chat'],['Jira CS BRAND ALPHA','CSALPHA — Board','check'],['Jira AFO BRAND ALPHA','PMALPHA — Board','check'],['Site BRAND ALPHA','brand-alpha.example','globe'],['Confluence CS','Base de procedimentos','list'],['Help Desk Produto','helpdesk@orion-ops.example','chat']],
+  1:[['Intercom BRAND BETA','Atendimento','chat'],['Jira CS BRAND BETA','CSBETA — Board','check'],['Jira AFO BRAND BETA','PABETA — Board','check'],['Site BRAND BETA','brand-beta.example','globe'],['Jira Parceiro Tech','Suporte BRAND BETA','check'],['Confluence OP','Espaço Operações','list']],
+  2:[['Intercom BRAND GAMMA','Atendimento','chat'],['Jira CS BRAND GAMMA','CSGAMMA — Board','check'],['Jira AFO BRAND GAMMA','PMGAMMA — Board','check'],['Site BRAND GAMMA','brand-gamma.example','globe'],['Confluence OP','Espaço Operações','list'],['Confluence CS','Base de procedimentos','list']],
+  all:[['Board Operações (PO)','Jira — Geral','check'],['Confluence OP','Espaço geral Ops','list'],['Checklist Operacional','PI-10.0 — Confluence','check'],['Métricas Intercom','Dashboard Intercom','chart'],['Painel Transações','PayGateway','coin'],['Base Procedimentos CS','Confluence CSP','list']]};
+SCREENS.hub = el=>{
+  const f=UI.hub_f??={}; f.lb??=G.brand; if(f.lb==null)f.lb='all';
+  const pend=REVIEWS.filter(r=>inBrand(r)&&r.status!=='Concluída IA'&&r.status!=='Concluída Humana').length;
+  const mods=[['monitoria','Monitoria IA','shield','var(--purple)',N(A().length),`Auditoria automática · ${A().filter(a=>a.status==='Em revisão').length} em revisão`],
+    ['cases','Cases de Atendimento','chat','var(--blue)',N(CASES.filter(c=>inBrand(c)&&atM(c)).length),`${CASES.filter(c=>inBrand(c)&&c.open).length} abertos · ${MONTHS[G.m]}`],
+    ['revisoes','Revisões','rev','var(--amber)',N(pend),'Aguardando IA ou decisão humana'],
+    ['dashboards','Dashboards','chart','var(--teal)','4','Executivo, CS, Volumetria e Qualidade'],
+    ['reclame','Reclame Aqui','mega','var(--coral)',N(RA.filter(r=>inBrand(r)&&atM(r)).length),'Reclamações no período'],
+    ['jira','Jira / Tarefas','check','var(--green)',N(JIRA.filter(j=>inBrand(j)&&j.st!=='Feita').length),'Tarefas abertas CS + AFO']];
+  el.innerHTML = head('Hub CS / AFO',`Acesso rápido aos módulos e ferramentas · ${ctx()}`)+
+  `<div class="g g3">${mods.map(([id,t,i,c,n,d])=>`<div class="hub-card" onclick="go('${id}')" tabindex="0"><div class="hub-ic" style="background:color-mix(in srgb,${c} 14%,transparent);color:${c}">${ic(i,'width:19px;height:19px')}</div>
+    <div class="hub-num num" style="color:${c}">${n}</div><div style="font-weight:700;font-size:13px">${t}</div><div class="r-meta" style="margin-top:3px">${d}</div></div>`).join('')}</div>
+  <div class="card"><div class="card-h"><div><div class="card-t">Links rápidos por marca</div><div class="card-s">Ambientes, boards e bases de conhecimento</div></div>
+    ${segH('lb',[['all','Geral'],...BRANDS.map((b,i)=>[i,b.replace('BRAND ','')])],f.lb)}</div>
+    <div class="link-grid">${LINKS[f.lb].map(([n,c,i])=>`<a class="link-item" href="#" onclick="event.preventDefault();toast('Link de demonstração','${n} abriria numa nova aba.')"><span style="color:var(--purple2)">${ic(i)}</span><div style="min-width:0;flex:1"><div style="font-weight:600;font-size:12px">${n}</div><div class="r-meta">${c}</div></div>${ic('ext','width:12px;height:12px;color:var(--txt4)')}</a>`).join('')}</div></div>`;
+  bindSeg(el,'lb',v=>{f.lb=v;render()});
+};
+
+/* ---------------- MONITORIA ---------------- */
+SCREENS.monitoria = el=>{
+  const f=UI.monitoria_f??={}; f.q??=''; f.ag??='all'; f.sev??='all'; f.st??='all'; f.pilar??='all'; f.cat??='all';
+  const base=A(), a=auditAgg(base), ap=auditAgg(A(G.m-1));
+  const rows = base.filter(x=>(f.ag==='all'||x.a==f.ag)&&(f.st==='all'||x.status===f.st)&&(f.sev==='all'||x.inf.some(i=>i.sev===f.sev))
+    &&(f.pilar==='all'||x.inf.some(i=>i.pilar===f.pilar))&&(f.cat==='all'||x.inf.some(i=>i.cat===f.cat))
+    &&(!f.q||x.id.includes(f.q)||PEOPLE[x.a].name.toLowerCase().includes(f.q.toLowerCase())));
+  const cnt=s=>base.filter(x=>x.status===s).length;
+  el.innerHTML = head('Monitoria IA',`Auditoria automática de atendimentos por 5 agentes de IA · ${ctx()}`,`<button class="btn" onclick="exportCSV('t-mon','monitoria')">${ic('dl')}Exportar CSV</button>`)+
+  `<div class="kpis k4">
+    ${kpi({id:'m1',label:'Score geral',value:D(a.score,2),deltaHtml:delta(a.score,ap.score,{pct:true,fmt:x=>D(x,2)}),accent:'var(--purple)'})}
+    ${kpi({id:'m2',label:'Auditados',value:N(a.n),deltaHtml:delta(a.n,ap.n),accent:'var(--blue)'})}
+    ${kpi({id:'m3',label:'CSAT justificado',value:P(a.csatJ),deltaHtml:delta(a.csatJ,ap.csatJ,{pct:true}),sub:'Considera abonos aprovados',accent:'var(--teal)',tip:'(Positivas + negativas com abono aprovado) ÷ avaliações.'})}
+    ${kpi({id:'m4',label:'Infrações',value:N(a.inf),deltaHtml:delta(a.inf,ap.inf,{inv:true}),sub:`${a.sev[2]} graves · ${a.sev[3]} muito graves`,accent:'var(--coral)'})}
+  </div>
+  <div class="g g2">
+    <div class="card"><div class="card-h"><div><div class="card-t">Score por pilar</div><div class="card-s">Evolução mensal · meta 9,5</div></div></div><div id="mo-pil"></div></div>
+    <div class="card"><div class="card-h"><div><div class="card-t">Ranking de infrações</div><div class="card-s">Clique numa categoria para filtrar a tabela</div></div>${f.cat!=='all'?`<button class="link" id="mo-clr">Limpar "${f.cat}"</button>`:''}</div><div id="mo-cat"></div></div>
+  </div>
+  <div class="tbl-card"><div class="tbl-bar"><div class="card-t">Atendimentos auditados</div>
+    <div class="search">${ic('search','width:13px;height:13px')}<input class="input" id="mo-q" placeholder="ID ou analista" value="${f.q}"></div>
+    <select class="select sm" id="mo-ag"><option value="all">Todos os analistas</option>${AGENTS.map(p=>`<option value="${p.id}" ${f.ag==p.id?'selected':''}>${p.name}</option>`).join('')}</select>
+    <select class="select sm" id="mo-sev"><option value="all">Todas as gravidades</option>${SEV.map(s=>`<option ${f.sev===s?'selected':''}>${s}</option>`).join('')}</select>
+    <select class="select sm" id="mo-pl"><option value="all">Todos os pilares</option>${PILAR_LIST.map(s=>`<option ${f.pilar===s?'selected':''}>${s}</option>`).join('')}</select>
+    ${segH('mo-st',[['all','Todos',base.length],['Auditado','Auditado',cnt('Auditado')],['Infração grave','Grave',cnt('Infração grave')],['Em revisão','Em revisão',cnt('Em revisão')]],f.st)}
+  </div><div id="t-mon"></div></div>`;
+  table('t-mon',{rows,onRow:x=>auditDrawer(x.id),cols:[
+    {l:'ID',k:'id',f:x=>`<span class="mono">${x.id}</span>`},{l:'Marca',sv:x=>x.b,f:x=>`<span class="pill p-gray">${BRANDS[x.b].replace('BRAND ','')}</span>`},
+    {l:'Analista',sv:x=>PEOPLE[x.a].name,f:x=>`<div style="display:flex;align-items:center;gap:8px">${avatar(PEOPLE[x.a],22)}${PEOPLE[x.a].short}</div>`},
+    {l:'Score',sv:x=>x.score,f:x=>`<span class="score ${sclass(x.score)}">${D(x.score,1)}</span>`},
+    ...PILAR_LIST.map(p=>({l:p,sv:x=>x.ps[p],f:x=>`<span class="num" style="color:var(--txt2)">${D(x.ps[p],1)}</span>`})),
+    {l:'Infrações',sv:x=>x.inf.length,f:x=>x.inf.length?x.inf.map(i=>`<span class="pill ${SEV_PILL[i.sev]}">${i.cat}</span>`).join(' '):'<span style="color:var(--txt4)">—</span>'},
+    {l:'CSAT',sv:x=>x.rated?(x.pos?2:1):0,f:x=>!x.rated?'<span style="color:var(--txt4)">—</span>':x.pos?'<span class="pill p-teal">Positivo</span>':`<span class="pill ${x.just==='Aprovado'?'p-blue':'p-coral'}">Abono ${x.just.toLowerCase()}</span>`},
+    {l:'Status',k:'status',f:x=>`<span class="pill ${x.status==='Auditado'?'p-green':x.status==='Em revisão'?'p-amber':'p-coral'}">${x.status}</span>`}]});
+  const deb=fn=>{let t;return e=>{clearTimeout(t);t=setTimeout(()=>fn(e),180)}};
+  $('#mo-q').oninput=deb(e=>{f.q=e.target.value;UI['t-mon'].page=0;render();const i=$('#mo-q');i.focus();i.setSelectionRange(i.value.length,i.value.length)});
+  $('#mo-ag').onchange=e=>{f.ag=e.target.value;render()};$('#mo-sev').onchange=e=>{f.sev=e.target.value;render()};$('#mo-pl').onchange=e=>{f.pilar=e.target.value;render()};
+  bindSeg(el,'mo-st',v=>{f.st=v;render()}); $('#mo-clr')&&($('#mo-clr').onclick=()=>{f.cat='all';render()});
+  apex('#mo-pil',{chart:{type:'line',height:250},series:PILAR_LIST.map(p=>({name:p,data:series(m=>+auditAgg(A(m)).ps[p]?.toFixed(2)||null)})),
+    colors:[css('--purple'),css('--teal'),css('--coral')],markers:{size:3},xaxis:{categories:MONTHS},yaxis:{min:8.5,max:10,labels:{formatter:v=>D(v,1)}},
+    annotations:{yaxis:[{y:9.5,borderColor:css('--txt4'),strokeDashArray:5,label:{text:'Meta 9,5',style:{background:css('--bg4'),color:css('--txt2')}}}]},legend:{position:'top',horizontalAlign:'left'}});
+  const cats=CATS.map((c,i)=>({c,v:a.cat[i]})).sort((x,y)=>y.v-x.v);
+  apex('#mo-cat',{chart:{type:'bar',height:250,events:{dataPointSelection:(e,ch,{dataPointIndex:i})=>{const c=cats[i].c;f.cat=f.cat===c?'all':c;render()}}},
+    series:[{name:'Infrações',data:cats.map(x=>({x:x.c,y:x.v,fillColor:f.cat==='all'||f.cat===x.c?css('--purple'):css('--purple')+'40'}))}],
+    plotOptions:{bar:{horizontal:true,barHeight:'62%',borderRadius:4}},dataLabels:{enabled:true,style:{fontSize:'10.5px'},offsetX:4},yaxis:{labels:{style:{colors:css('--txt2')}}}});
+};
+
+/* ---------------- CASES ---------------- */
+SCREENS.cases = el=>{
+  const f=UI.cases_f??={}; f.cat??='all'; f.risk??='all'; f.q??=''; f.open??='all';
+  const base=CASES.filter(c=>inBrand(c)&&atM(c));
+  const rows=base.filter(c=>(f.cat==='all'||c.cat===f.cat)&&(f.risk==='all'||c.risk===f.risk)&&(f.open==='all'||(f.open==='1')===c.open)&&(!f.q||c.id.includes(f.q)||c.intent.toLowerCase().includes(f.q.toLowerCase())));
+  const cats=Object.keys(CASE_CAT), cc=['var(--coral)','var(--amber)','var(--blue)','var(--purple)'];
+  const order=[3,0,1,2];
+  el.innerHTML = head('Cases de Atendimento',`Classificação por IA de intenção, sentimento e risco de churn · ${ctx()}`,`<button class="btn" onclick="exportCSV('t-cases','cases')">${ic('dl')}Exportar CSV</button>`)+
+  `<div class="kpis k5">${order.map(i=>{const c=cats[i],n=base.filter(x=>x.cat===c).length;
+     return kpi({label:c,value:N(n),deltaHtml:`<span class="delta ${i===3?'down':'flat'}">${P(n/Math.max(1,base.length)*100,0)} do total</span>`,sub:i===3?`${base.filter(x=>x.cat===c&&x.open).length} abertos`:'',accent:cc[i],click:`UI.cases_f.cat=UI.cases_f.cat==='${c}'?'all':'${c}';render()`}).replace('class="kpi ',`class="kpi ${f.cat===c?'sel':''} `)}).join('')}
+    ${kpi({label:'Total de conversas classificadas',value:N(base.length),deltaHtml:delta(base.length,CASES.filter(c=>inBrand(c)&&atM(c,G.m-1)).length),accent:'var(--teal)',click:"UI.cases_f.cat='all';render()"})}</div>
+  <div class="g g2">
+    <div class="card"><div class="card-h"><div><div class="card-t">Sentimento do cliente</div><div class="card-s">Clique numa fatia para filtrar o risco relacionado</div></div></div><div id="ca-sent"></div></div>
+    <div class="card"><div class="card-h"><div><div class="card-t">Risco de churn por categoria</div><div class="card-s">Distribuição empilhada</div></div></div><div id="ca-risk"></div></div>
+  </div>
+  <div class="tbl-card"><div class="tbl-bar"><div class="card-t">Cases recentes ${f.cat!=='all'?`<span class="pill p-purple">${f.cat}</span>`:''}</div>
+    <div class="search">${ic('search','width:13px;height:13px')}<input class="input" id="ca-q" placeholder="ID ou intenção" value="${f.q}"></div>
+    ${segH('ca-r',[['all','Todos'],['Crítico','Crítico'],['Alto','Alto'],['Médio','Médio'],['Baixo','Baixo']],f.risk)}
+    ${segH('ca-o',[['all','Todos'],['1','Abertos'],['0','Fechados']],f.open)}
+  </div><div id="t-cases"></div></div>`;
+  table('t-cases',{rows,onRow:c=>caseDrawer(c.id),cols:[
+    {l:'ID',k:'id',f:c=>`<span class="mono">${c.id}</span>`},{l:'Marca',sv:c=>c.b,f:c=>BRANDS[c.b].replace('BRAND ','')},
+    {l:'Categoria',k:'cat'},{l:'Intenção principal',k:'intent',f:c=>`<b style="font-weight:600">${c.intent}</b>`},
+    {l:'Sentimento',k:'sent',f:c=>`<span class="pill ${SENT_C[c.sent]}">${c.sent}</span>`},
+    {l:'Risco',sv:c=>['Baixo','Médio','Alto','Crítico'].indexOf(c.risk),f:c=>`<span class="pill ${c.risk==='Crítico'?'p-coral':c.risk==='Alto'?'p-amber':c.risk==='Médio'?'p-blue':'p-gray'}">${c.risk}</span>`},
+    {l:'Status',sv:c=>c.open?1:0,f:c=>c.open?'<span class="pill p-amber">Aberto</span>':'<span class="pill p-green">Fechado</span>'},
+    {l:'Jira',k:'jira',f:c=>c.jira?`<span class="mono" style="color:var(--purple2)">${c.jira}</span>`:'<span style="color:var(--txt4)">—</span>'}]});
+  let t;$('#ca-q').oninput=e=>{clearTimeout(t);t=setTimeout(()=>{f.q=e.target.value;render();const i=$('#ca-q');i.focus();i.setSelectionRange(i.value.length,i.value.length)},180)};
+  bindSeg(el,'ca-r',v=>{f.risk=v;render()});bindSeg(el,'ca-o',v=>{f.open=v;render()});
+  const sc=SENT.map(s=>base.filter(c=>c.sent===s&&(f.cat==='all'||c.cat===f.cat)).length);
+  apex('#ca-sent',{chart:{type:'donut',height:250},series:sc,labels:SENT,colors:[css('--coral'),css('--amber'),css('--blue'),css('--txt4'),css('--purple')],stroke:{width:0},legend:{position:'right'},
+    plotOptions:{pie:{donut:{size:'68%',labels:{show:true,total:{show:true,label:'Cases',color:css('--txt3'),formatter:w=>N(w.globals.seriesTotals.reduce((a,b)=>a+b,0))},value:{fontWeight:800,color:css('--txt1')}}}}}});
+  const RK=['Crítico','Alto','Médio','Baixo'];
+  apex('#ca-risk',{chart:{type:'bar',height:250,stacked:true,events:{dataPointSelection:(e,c,{seriesIndex:s,dataPointIndex:i})=>{f.cat=cats[i];f.risk=RK[s];render()}}},
+    series:RK.map(r=>({name:r,data:cats.map(c=>base.filter(x=>x.cat===c&&x.risk===r).length)})),colors:[css('--coral'),css('--amber'),css('--blue'),css('--txt4')],
+    plotOptions:{bar:{horizontal:true,barHeight:'55%',borderRadius:3}},xaxis:{categories:cats.map(c=>c.split(' ')[0])},legend:{position:'top',horizontalAlign:'left'}});
+};
+
+/* ---------------- REVISÕES ---------------- */
+SCREENS.revisoes = el=>{
+  const f=UI.revisoes_f??={}; f.st??='all';
+  const base=REVIEWS.filter(inBrand);
+  const c=s=>base.filter(r=>r.status===s).length, done=base.filter(r=>r.result);
+  const rows=base.filter(r=>f.st==='all'||r.status===f.st).sort((a,b)=>b.m-a.m);
+  el.innerHTML = head('Revisões',`Contestações de auditoria resolvidas por IA com escalonamento humano · ${brandName()}`)+
+  `<div class="kpis k4">
+    ${kpi({label:'Total de revisões',value:N(base.length),deltaHtml:`<span class="delta flat">${N(base.filter(r=>r.m===G.m).length)} em ${MONTHS[G.m]}</span>`,accent:'var(--purple)'})}
+    ${kpi({label:'Pendentes IA',value:N(c('Pendente IA')),deltaHtml:'<span class="delta warn">Aguardando análise</span>',accent:'var(--amber)',click:"UI.revisoes_f.st='Pendente IA';render()"})}
+    ${kpi({label:'Precisam de humano',value:N(c('Precisa Humano')),deltaHtml:'<span class="delta down">Ação necessária</span>',accent:'var(--coral)',click:"UI.revisoes_f.st='Precisa Humano';render()"})}
+    ${kpi({label:'Taxa de resolução IA',value:P(c('Concluída IA')/Math.max(1,done.length)*100,0),deltaHtml:`<span class="delta up">${N(done.filter(r=>r.result==='Revertida').length)} revertidas</span>`,accent:'var(--teal)',tip:'Revisões concluídas pela IA ÷ revisões concluídas.'})}
+  </div>
+  <div class="g" style="grid-template-columns:minmax(0,1fr)">
+    <div class="tbl-card" style="margin:0"><div class="tbl-bar"><div class="card-t">Fila de revisões</div>
+      ${segH('rv',[['all','Todas',base.length],['Pendente IA','Pendente IA',c('Pendente IA')],['Precisa Humano','Precisa humano',c('Precisa Humano')],['Concluída IA','Concluída IA',c('Concluída IA')],['Concluída Humana','Concluída humana',c('Concluída Humana')]],f.st)}</div><div id="t-rev"></div></div>
+    <div class="card" style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:24px;align-items:start"><div><div class="card-h"><div><div class="card-t">Resultado das revisões</div><div class="card-s">Mantidas vs revertidas, por tipo</div></div></div><div id="rv-res"></div></div>
+      <div><div class="sec-t" style="margin-top:0">Pilares mais contestados</div>${PILAR_LIST.map(p=>{const n=base.filter(r=>r.pilar===p).length;return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:100px;font-size:12px">${p}</div><div class="meter" style="flex:1"><i style="width:${n/Math.max(1,base.length)*100}%;background:var(--purple)"></i></div><b class="num" style="width:30px;text-align:right">${n}</b></div>`}).join('')}
+    </div></div>
+  </div>`;
+  const stP={'Pendente IA':'p-amber','Precisa Humano':'p-coral','Concluída IA':'p-teal','Concluída Humana':'p-blue'};
+  table('t-rev',{rows,size:9,onRow:r=>auditDrawer(r.aud),cols:[
+    {l:'ID',k:'id',f:r=>`<span class="mono">${r.id}</span>`},{l:'Marca',sv:r=>r.b,f:r=>BRANDS[r.b].replace('BRAND ','')},
+    {l:'Tipo',k:'type'},{l:'Infração',k:'cat',f:r=>`${r.cat} <span class="r-meta">· ${r.pilar}</span>`},
+    {l:'Solicitante',sv:r=>PEOPLE[r.req].name,f:r=>PEOPLE[r.req].short},
+    {l:'Status',k:'status',f:r=>`<span class="pill ${stP[r.status]}">${r.status}</span>${r.result?` <span class="r-meta">${r.result}</span>`:''}`},
+    {l:'Ação',ns:1,f:r=>r.status==='Pendente IA'?`<button class="btn sm primary" onclick="revAI('${r.id}',this)">${ic('spark','width:12px;height:12px')}Analisar com IA</button>`:r.status==='Precisa Humano'?`<button class="btn sm" onclick="revDecide('${r.id}')">Decidir</button>`:'<span style="color:var(--txt4)">—</span>'}]});
+  bindSeg(el,'rv',v=>{f.st=v;render()});
+  apex('#rv-res',{chart:{type:'bar',height:190,stacked:true},series:['Mantida','Revertida'].map(x=>({name:x,data:REV_TYPES.map(t=>done.filter(r=>r.type===t&&r.result===x).length)})),
+    colors:[css('--purple'),css('--teal')],plotOptions:{bar:{horizontal:true,barHeight:'50%',borderRadius:3}},xaxis:{categories:REV_TYPES},legend:{position:'top',horizontalAlign:'left'}});
+};
+function revAI(id,btn){
+  const r=REVIEWS.find(x=>x.id===id); btn.disabled=true; btn.innerHTML='<span class="cursor" style="height:10px;width:5px"></span> Analisando…';
+  setTimeout(()=>{const human=rnd()<.35;r.status=human?'Precisa Humano':'Concluída IA';if(!human)r.result=rnd()<.6?'Mantida':'Revertida';
+    toast(human?'Escalonada para humano':'Revisão concluída pela IA',human?`${id}: confiança abaixo de 80%, requer decisão.`:`${id}: infração ${r.result.toLowerCase()} (confiança 91%).`,human?'amber':'teal');
+    if(human)notify(`${id} precisa de decisão humana`,'Escalonada pela IA','amber','revisoes');
+    renderNav();render()},1600);
+}
+function revDecide(id){
+  const r=REVIEWS.find(x=>x.id===id), a=AUDITS.find(x=>x.id===r.aud);
+  openModal(`<div style="font-size:15px;font-weight:700">Decidir ${id}</div><div class="r-meta" style="margin:4px 0 14px">${r.type} · ${r.cat} (${r.pilar}) · ${PEOPLE[r.req].name}</div>
+    <div class="msg c" style="max-width:100%;margin-bottom:12px">“${r.reason}”</div>
+    <div class="sec-t" style="margin-top:0">Parecer da IA</div><div style="font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:12px">Confiança 64%. Evidência parcial na transcrição; recomenda <b>manter</b> com redução de gravidade.</div>
+    <textarea class="input" id="rv-just" placeholder="Justificativa (opcional)"></textarea>`,
+    `<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn danger" onclick="revClose('${id}','Mantida')">Manter infração</button><button class="btn primary" onclick="revClose('${id}','Revertida')">Reverter infração</button>`);
+}
+function revClose(id,res){const r=REVIEWS.find(x=>x.id===id);r.status='Concluída Humana';r.result=res;closeModal();toast(`${id} concluída`,`Infração ${res.toLowerCase()} por Diego M.`,'teal');renderNav();render()}
+</script>
+<script>
+/* ---------------- DASHBOARDS ---------------- */
+SCREENS.dashboards = el=>{
+  const f=UI.dashboards_f??={}; f.tab??='exec';
+  el.innerHTML = head('Dashboards',`Painéis analíticos · ${ctx()}`,segH('db',[['exec','Executivo'],['cs','Métricas CS'],['vol','Volumetria'],['qual','Qualidade']],f.tab))+`<div id="db-body"></div>`;
+  bindSeg(el,'db',v=>{f.tab=v;render()});
+  const b=$('#db-body'), bset=G.brand==='all'?[0,1,2]:[+G.brand];
+  if(f.tab==='exec'){
+    const per=BRANDS.map((n,i)=>({n,i,v:volAgg(VOL.filter(x=>x.b===i&&atM(x))),a:auditAgg(AUDITS.filter(x=>x.b===i&&atM(x)))})).filter(x=>bset.includes(x.i));
+    const tv=volAgg(V()), ta=auditAgg(A());
+    b.innerHTML=`<div class="g g21"><div class="card"><div class="card-h"><div class="card-t">Conversas e CSAT · 6 meses</div></div><div id="db-a"></div></div>
+      <div class="card"><div class="card-h"><div class="card-t">Infrações por gravidade</div></div><div id="db-b"></div></div></div>
+      <div class="tbl-card"><div class="tbl-bar"><div class="card-t">Painel executivo por marca</div><button class="btn sm" onclick="exportCSV('t-exec','executivo')">${ic('dl','width:12px;height:12px')}CSV</button></div><div id="t-exec"></div></div>`;
+    table('t-exec',{rows:[...per,{n:'Total',i:-1,v:tv,a:ta}],size:10,onRow:r=>r.i>=0&&setBrand(String(r.i)),cols:[
+      {l:'Marca',k:'n',f:r=>r.i<0?'<b>Total</b>':`<span style="display:inline-flex;align-items:center;gap:8px"><i style="width:8px;height:8px;border-radius:2px;background:${BRAND_C[r.i]}"></i>${r.n}</span>`},
+      {l:'Conversas',sv:r=>r.v.conv,f:r=>N(r.v.conv)},{l:'CSAT %',sv:r=>r.v.csat,f:r=>`<span class="${r.v.csat>=80?'s-hi':'s-mid'} score">${P(r.v.csat)}</span>`},
+      {l:'FCR',sv:r=>r.v.fcr,f:r=>P(r.v.fcr)},{l:'TMPR',sv:r=>r.v.tmpr,f:r=>T(r.v.tmpr)},{l:'Reincidentes',sv:r=>r.v.reinc,f:r=>N(r.v.reinc)},
+      {l:'Inf. graves',sv:r=>r.a.grave,f:r=>N(r.a.grave)},{l:'Score',sv:r=>r.a.score,f:r=>`<span class="score ${sclass(r.a.score)}">${D(r.a.score,2)}</span>`}]});
+    const sv=series(m=>volAgg(V(m)));
+    apex('#db-a',{chart:{type:'area',height:270},series:[{name:'Conversas',type:'column',data:sv.map(x=>x.conv)},{name:'CSAT %',type:'line',data:sv.map(x=>+x.csat.toFixed(1))}],
+      colors:[css('--purple'),css('--teal')],stroke:{width:[0,3]},plotOptions:{bar:{columnWidth:'45%',borderRadius:5}},xaxis:{categories:MONTHS},
+      yaxis:[{labels:{formatter:v=>K(v)}},{opposite:true,min:50,max:100,labels:{formatter:v=>v.toFixed(0)+'%'}}],legend:{position:'top',horizontalAlign:'left'}});
+    apex('#db-b',{chart:{type:'radialBar',height:290},series:ta.sev.map(x=>+(x/Math.max(1,ta.inf)*100).toFixed(1)),labels:SEV,colors:[css('--blue'),css('--amber'),css('--coral'),'#B4235A'],
+      plotOptions:{radialBar:{hollow:{size:'28%'},track:{background:css('--bg3')},dataLabels:{name:{fontSize:'12px'},value:{fontSize:'16px',fontWeight:800,color:css('--txt1'),formatter:v=>v+'%'},total:{show:true,label:'Infrações',color:css('--txt3'),formatter:()=>N(ta.inf)}}}},legend:{show:true,position:'bottom'}});
+  }
+  if(f.tab==='cs'){
+    b.innerHTML=`<div class="g g3">${[['CSAT %','csat',P,[60,100]],['FCR %','fcr',P,[55,80]],['TMPR','tmpr',T,null]].map(([t,k])=>`<div class="card"><div class="card-h"><div class="card-t">${t} por marca</div></div><div id="cs-${k}"></div></div>`).join('')}</div>
+      <div class="card"><div class="card-h"><div><div class="card-t">Conversão vs avaliações</div><div class="card-s">Relação entre volume avaliado e conversão · bolha = conversas</div></div></div><div id="cs-bub"></div></div>`;
+    [['csat',v=>v.toFixed(0)+'%'],['fcr',v=>v.toFixed(0)+'%'],['tmpr',v=>T(v)]].forEach(([k,fm])=>apex('#cs-'+k,{chart:{type:'line',height:220},
+      series:bset.map(i=>({name:BRANDS[i],data:MONTHS.map((_,m)=>{const x=volAgg(VOL.filter(v=>v.b===i&&v.m===m));return +x[k].toFixed(1)})})),colors:bset.map(i=>BRAND_C[i]),markers:{size:3},
+      xaxis:{categories:MONTHS},yaxis:{labels:{formatter:fm}},legend:{position:'top',horizontalAlign:'left'},tooltip:{y:{formatter:fm}}}));
+    apex('#cs-bub',{chart:{type:'bubble',height:260},series:bset.map(i=>({name:BRANDS[i],data:MONTHS.map((_,m)=>{const x=VOL.find(v=>v.b===i&&v.m===m);return{x:x.aval,y:+(x.cvs/x.conv*100).toFixed(2),z:x.conv}})})),
+      colors:bset.map(i=>BRAND_C[i]),fill:{opacity:.75},xaxis:{type:'numeric',title:{text:'Avaliações'}},yaxis:{labels:{formatter:v=>v.toFixed(1)+'%'}},dataLabels:{enabled:false},
+      tooltip:{custom:({seriesIndex:s,dataPointIndex:d,w})=>{const p=w.config.series[s].data[d];return `<div style="padding:8px 10px;font-size:12px"><b>${w.config.series[s].name} · ${MONTHS[d]}</b><br>Avaliações: ${N(p.x)}<br>Conversão: ${P(p.y,2)}<br>Conversas: ${N(p.z)}</div>`}}});
+  }
+  if(f.tab==='vol'){
+    const days=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'], hm=days.map((d,di)=>({name:d,data:Array.from({length:24},(_,h)=>({x:String(h).padStart(2,'0')+'h',y:V().reduce((s,v)=>s+v.hours[di][h],0)}))})).reverse();
+    const max=Math.max(...hm.flatMap(r=>r.data.map(c=>c.y)));
+    b.innerHTML=`<div class="card" style="margin-bottom:12px"><div class="card-h"><div><div class="card-t">Mapa de calor · dia da semana × hora</div><div class="card-s">Conversas iniciadas · use para dimensionar escala por turno</div></div><span class="pill p-purple">Pico: ${N(max)} conversas/h</span></div><div id="vo-hm"></div></div>
+      <div class="g g2"><div class="card"><div class="card-h"><div class="card-t">Curva intradiária</div></div><div id="vo-curve"></div></div>
+      <div class="card"><div class="card-h"><div><div class="card-t">Cobertura por turno</div><div class="card-s">Analistas alocados vs demanda média</div></div></div><div id="vo-shift"></div></div></div>`;
+    apex('#vo-hm',{chart:{type:'heatmap',height:280},series:hm,dataLabels:{enabled:false},stroke:{width:2,colors:[css('--bg2')]},
+      plotOptions:{heatmap:{radius:3,enableShades:false,colorScale:{ranges:[{from:0,to:max*.25,color:G.theme==='dark'?'#1E1B3A':'#E9E6FB',name:'Baixo'},{from:max*.25,to:max*.5,color:'#4B3FB0',name:'Médio'},{from:max*.5,to:max*.75,color:'#7B6EF6',name:'Alto'},{from:max*.75,to:max+1,color:'#22D3A8',name:'Pico'}]}}},
+      xaxis:{labels:{rotate:0,formatter:v=>(+String(v).slice(0,2))%3===0?v:''}},legend:{position:'top',horizontalAlign:'right'}});
+    const curve=Array.from({length:24},(_,h)=>hm.reduce((s,r)=>s+r.data[h].y,0)/7);
+    apex('#vo-curve',{chart:{type:'area',height:230},series:[{name:'Média de conversas',data:curve.map(v=>+v.toFixed(0))}],colors:[css('--purple')],fill:{type:'gradient',gradient:{opacityFrom:.4,opacityTo:0}},
+      xaxis:{categories:Array.from({length:24},(_,h)=>h+'h'),tickAmount:8}});
+    const sh=['Diurno','Intermediário','Noturno'],dem=[curve.slice(7,15),curve.slice(12,20),curve.slice(19).concat(curve.slice(0,7))].map(a=>a.reduce((s,v)=>s+v,0)/a.length);
+    apex('#vo-shift',{chart:{type:'bar',height:230},series:[{name:'Analistas',data:sh.map(s=>AGENTS.filter(a=>a.shift===s).length)},{name:'Demanda média (conv/h ÷ 5)',data:dem.map(d=>+(d/5).toFixed(1))}],
+      colors:[css('--purple'),css('--teal')],plotOptions:{bar:{columnWidth:'45%',borderRadius:4}},xaxis:{categories:sh},legend:{position:'top',horizontalAlign:'left'}});
+  }
+  if(f.tab==='qual'){
+    b.innerHTML=`<div class="g g2"><div class="card"><div class="card-h"><div><div class="card-t">Score por marca × categoria</div><div class="card-s">Penalização média por categoria · clique para abrir na Monitoria</div></div></div><div id="q-hm"></div></div>
+      <div class="card"><div class="card-h"><div><div class="card-t">Volume auditado × score</div><div class="card-s">Cada ponto é um analista · clique para ver o perfil</div></div></div><div id="q-sc"></div></div></div>`;
+    apex('#q-hm',{chart:{type:'heatmap',height:300,events:{dataPointSelection:(e,c,{dataPointIndex:i})=>go('monitoria',{cat:CATS[i]})}},
+      series:bset.map(i=>{const rs=AUDITS.filter(a=>a.b===i&&atM(a));return{name:BRANDS[i].replace('BRAND ',''),data:CATS.map(c=>({x:c,y:+(10-rs.reduce((s,a)=>s+a.inf.filter(x=>x.cat===c).reduce((t,x)=>t+SEV_PEN[SEV.indexOf(x.sev)]*8,0),0)/Math.max(1,rs.length)).toFixed(2)}))}}).reverse(),
+      dataLabels:{enabled:true,style:{fontSize:'10px',colors:['#fff']},formatter:v=>D(v,1)},stroke:{width:2,colors:[css('--bg2')]},
+      plotOptions:{heatmap:{radius:4,enableShades:false,colorScale:{ranges:[{from:0,to:9.3,color:'#E04646',name:'< 9,3'},{from:9.3,to:9.6,color:'#D98A06',name:'9,3–9,6'},{from:9.6,to:9.85,color:'#6A5BF0',name:'9,6–9,85'},{from:9.85,to:10.01,color:'#0EA982',name:'≥ 9,85'}]}}},
+      xaxis:{labels:{rotate:-35,style:{fontSize:'10px'}}},legend:{position:'bottom'}});
+    const rk=agentRank();
+    apex('#q-sc',{chart:{type:'scatter',height:300,events:{dataPointSelection:(e,c,{dataPointIndex:i})=>agentDrawer(rk[i].p.id)}},series:[{name:'Analistas',data:rk.map(r=>({x:r.n,y:+r.score.toFixed(2)}))}],
+      colors:[css('--purple')],markers:{size:9,strokeWidth:0},xaxis:{type:'numeric',title:{text:'Auditorias'}},yaxis:{min:7,max:10,labels:{formatter:v=>D(v,1)}},
+      annotations:{yaxis:[{y:9.5,borderColor:css('--teal'),strokeDashArray:5,label:{text:'Meta',style:{background:css('--teal'),color:'#fff'}}}]},
+      tooltip:{custom:({dataPointIndex:i})=>`<div style="padding:8px 10px;font-size:12px"><b>${rk[i].p.name}</b><br>Score ${D(rk[i].score,2)} · ${rk[i].n} auditorias<br>${rk[i].inf} infrações</div>`}});
+  }
+};
+
+/* ---------------- RECLAME AQUI ---------------- */
+SCREENS.reclame = el=>{
+  const f=UI.reclame_f??={}; f.type??='all'; const base=RA.filter(r=>inBrand(r)&&atM(r)), prev=RA.filter(r=>inBrand(r)&&atM(r,G.m-1));
+  const agg=rs=>{const n=rs.length,res=rs.filter(r=>r.res).length,nt=rs.filter(r=>r.nota),back=rs.filter(r=>r.back==='Sim').length;
+    const rate=n?res/n*100:null,nota=nt.length?nt.reduce((s,r)=>s+r.nota,0)/nt.length:null;return{n,res,rate,nota,back,score:rate==null?null:(rate*.5+(nota??7)*10*.3+back/Math.max(1,res)*100*.2)*.82}};
+  const a=agg(base),p=agg(prev); const rows=base.filter(r=>f.type==='all'||r.type===f.type);
+  const types=[...new Set(RA.map(r=>r.type))];
+  el.innerHTML = head('Reclame Aqui',`Reputação pública e tratativa de reclamações · ${ctx()}`,`<button class="btn" onclick="exportCSV('t-ra','reclameaqui')">${ic('dl')}Exportar CSV</button>`)+
+  `<div class="kpis k4">${kpi({label:'Reclamações',value:N(a.n),deltaHtml:delta(a.n,p.n,{inv:true}),sub:`Resolvidas: ${a.res}`,accent:'var(--coral)'})}
+    ${kpi({label:'Taxa de resolução',value:P(a.rate),deltaHtml:delta(a.rate,p.rate,{pct:true}),accent:'var(--teal)'})}
+    ${kpi({label:'Nota média',value:D(a.nota),deltaHtml:a.nota<8?'<span class="delta warn">Meta: 8,0</span>':delta(a.nota,p.nota,{pct:true,fmt:x=>D(x)}),accent:'var(--amber)'})}
+    ${kpi({label:'Score RA',value:D(a.score),deltaHtml:delta(a.score,p.score,{pct:true,fmt:x=>D(x)}),sub:'Índice composto de reputação',accent:'var(--purple)',tip:'Composição: 50% taxa de resolução, 30% nota média e 20% “voltaria a fazer negócio”.'})}</div>
+  <div class="g g21"><div class="card"><div class="card-h"><div class="card-t">Reclamações e resolução · 6 meses</div></div><div id="ra-tr"></div></div>
+    <div class="card"><div class="card-h"><div><div class="card-t">Motivos</div><div class="card-s">Clique para filtrar</div></div></div><div id="ra-ty"></div></div></div>
+  <div class="tbl-card"><div class="tbl-bar"><div class="card-t">Casos ${f.type!=='all'?`<span class="pill p-purple">${f.type}</span>`:''}</div>${f.type!=='all'?`<button class="link" onclick="UI.reclame_f.type='all';render()">Limpar filtro</button>`:''}</div><div id="t-ra"></div></div>`;
+  table('t-ra',{rows,size:8,cols:[{l:'Data',sv:r=>r.day,f:r=>`${String(r.day).padStart(2,'0')}/${MONTHS[r.m].slice(0,3)}`},{l:'Marca',sv:r=>r.b,f:r=>BRANDS[r.b].replace('BRAND ','')},
+    {l:'Responsável',sv:r=>PEOPLE[r.resp].name,f:r=>PEOPLE[r.resp].short},{l:'ID',k:'id',f:r=>`<span class="mono">${r.id}</span>`},{l:'Motivo',k:'type'},
+    {l:'Nível',k:'lvl',f:r=>`<span class="pill ${r.lvl==='ALTO'?'p-coral':r.lvl==='MÉDIO'?'p-amber':'p-gray'}">${r.lvl}</span>`},
+    {l:'Resolvida',sv:r=>r.res?1:0,f:r=>r.res?'<span class="pill p-teal">Sim</span>':'<span class="pill p-coral">Não</span>'},{l:'Voltaria',k:'back'},{l:'Nota',sv:r=>r.nota??-1,f:r=>r.nota?`<b class="${r.nota>=8?'s-hi':r.nota>=6?'s-mid':'s-lo'}">${r.nota}</b>`:'—'}]});
+  apex('#ra-tr',{chart:{type:'line',height:240},series:[{name:'Reclamações',type:'column',data:series(m=>agg(RA.filter(r=>inBrand(r)&&r.m===m)).n)},{name:'Taxa de resolução',type:'line',data:series(m=>+agg(RA.filter(r=>inBrand(r)&&r.m===m)).rate.toFixed(1))}],
+    colors:[css('--coral'),css('--teal')],stroke:{width:[0,3]},plotOptions:{bar:{columnWidth:'42%',borderRadius:4}},xaxis:{categories:MONTHS},yaxis:[{},{opposite:true,min:50,max:100,labels:{formatter:v=>v.toFixed(0)+'%'}}],legend:{position:'top',horizontalAlign:'left'}});
+  apex('#ra-ty',{chart:{type:'bar',height:240,events:{dataPointSelection:(e,c,{dataPointIndex:i})=>{f.type=f.type===types[i]?'all':types[i];render()}}},
+    series:[{name:'Casos',data:types.map(t=>({x:t,y:base.filter(r=>r.type===t).length,fillColor:f.type==='all'||f.type===t?css('--coral'):css('--coral')+'40'}))}],plotOptions:{bar:{horizontal:true,borderRadius:4,barHeight:'60%'}},dataLabels:{enabled:true}});
+};
+
+/* ---------------- CANAIS EXTERNOS ---------------- */
+SCREENS.canais = el=>{
+  const f=UI.canais_f??={}; f.ch??='all'; const act=CH.filter(c=>inBrand(c)&&c.status!=='Encerrado'), all=CH.filter(c=>inBrand(c)&&atM(c));
+  const rows=act.filter(c=>f.ch==='all'||c.ch===f.ch).sort((a,b)=>(b.elapsed/b.sla)-(a.elapsed/a.sla));
+  const late=act.filter(c=>c.elapsed>c.sla).length;
+  const cc=['var(--purple)','var(--blue)','var(--amber)','var(--coral)','#B4235A'];
+  el.innerHTML = head('Canais Externos',`Órgãos de defesa do consumidor, ouvidoria e jurídico · ${brandName()}`)+
+  `<div class="kpis k6">${kpi({label:'Casos ativos',value:N(act.length),deltaHtml:late?`<span class="delta down">${late} fora do SLA</span>`:'<span class="delta up">Todos no SLA</span>',accent:'var(--teal)',click:"UI.canais_f.ch='all';render()"})}
+    ${CHANNELS.map((c,i)=>kpi({label:c,value:N(act.filter(x=>x.ch===c).length),deltaHtml:`<span class="delta flat">${all.filter(x=>x.ch===c).length} em ${MONTHS[G.m]}</span>`,accent:cc[i],click:`UI.canais_f.ch=UI.canais_f.ch==='${c}'?'all':'${c}';render()`}).replace('class="kpi ',`class="kpi ${f.ch===c?'sel':''} `)).join('')}</div>
+  <div class="tbl-card"><div class="tbl-bar"><div class="card-t">Fila por prazo de SLA ${f.ch!=='all'?`<span class="pill p-purple">${f.ch}</span>`:''}</div><span class="r-meta">Ordenado pelo consumo do prazo</span></div><div id="t-ch"></div></div>`;
+  table('t-ch',{rows,size:10,onRow:c=>chDrawer(c.id),cols:[{l:'ID',k:'id',f:c=>`<span class="mono">${c.id}</span>`},{l:'Canal',k:'ch'},{l:'Marca',sv:c=>c.b,f:c=>BRANDS[c.b].replace('BRAND ','')},{l:'Assunto',k:'subject'},
+    {l:'Responsável',sv:c=>PEOPLE[c.owner].name,f:c=>PEOPLE[c.owner].short},
+    {l:'Prazo SLA',sv:c=>c.elapsed/c.sla,w:'200px',f:c=>{const p=Math.min(100,c.elapsed/c.sla*100),col=p>=100?'var(--coral)':p>=75?'var(--amber)':'var(--teal)';
+      return `<div style="display:flex;align-items:center;gap:8px"><div class="meter" style="width:110px"><i style="width:${p}%;background:${col}"></i></div><span class="num" style="color:${col};font-weight:600">${c.elapsed}/${c.sla}d</span></div>`}},
+    {l:'Status',k:'status',f:c=>`<span class="pill ${c.status==='Aberto'?'p-amber':c.status==='Em análise'?'p-blue':'p-teal'}">${c.status}</span>`}]});
+};
+
+/* ---------------- JIRA ---------------- */
+SCREENS.jira = el=>{
+  const f=UI.jira_f??={}; f.view??='board'; f.proj??='all'; f.q??='';
+  const base=JIRA.filter(j=>inBrand(j)&&(f.proj==='all'||j.proj===f.proj)&&(!f.q||(j.key+j.sum).toLowerCase().includes(f.q.toLowerCase())));
+  const all=JIRA.filter(inBrand);
+  el.innerHTML = head('Jira & Tarefas',`Board unificado CS + Antifraude · arraste os cartões para mudar o status`,
+    `${segH('jv',[['board',ic('board','width:13px;height:13px')+'Board'],['list',ic('list','width:13px;height:13px')+'Lista']],f.view)}`)+
+  `<div class="kpis k4">${kpi({label:'Total de tarefas',value:N(all.length),deltaHtml:`<span class="delta flat">Abertas: ${all.filter(j=>j.st!=='Feita').length}</span>`,accent:'var(--purple)'})}
+    ${kpi({label:'Customer Service',value:N(all.filter(j=>j.team==='CS').length),deltaHtml:`<span class="delta flat">${all.filter(j=>j.team==='CS'&&j.st!=='Feita').length} abertas</span>`,accent:'var(--blue)'})}
+    ${kpi({label:'Antifraude',value:N(all.filter(j=>j.team==='AFO').length),deltaHtml:`<span class="delta flat">${all.filter(j=>j.team==='AFO'&&j.st!=='Feita').length} abertas</span>`,accent:'var(--amber)'})}
+    ${kpi({label:'Concluídas no mês',value:N(all.filter(j=>j.st==='Feita'&&atM(j)).length),deltaHtml:delta(all.filter(j=>j.st==='Feita'&&atM(j)).length,all.filter(j=>j.st==='Feita'&&atM(j,G.m-1)).length),accent:'var(--teal)'})}</div>
+  <div class="tbl-bar card" style="margin-bottom:12px;padding:10px 12px">
+    <div class="search">${ic('search','width:13px;height:13px')}<input class="input" id="j-q" placeholder="Buscar key ou resumo" value="${f.q}"></div>
+    ${segH('jp',[['all','Todos'],...PROJ.map(p=>[p,p])],f.proj)}
+    <button class="btn primary sm" style="margin-left:auto" onclick="newTask()">+ Nova tarefa</button></div>
+  <div id="j-body"></div>`;
+  bindSeg(el,'jv',v=>{f.view=v;render()});bindSeg(el,'jp',v=>{f.proj=v;render()});
+  let t;$('#j-q').oninput=e=>{clearTimeout(t);t=setTimeout(()=>{f.q=e.target.value;render();const i=$('#j-q');i.focus();i.setSelectionRange(i.value.length,i.value.length)},180)};
+  const priC={Highest:'p-coral',High:'p-amber',Medium:'p-blue',Low:'p-gray'};
+  if(f.view==='board'){
+    const recent=[...base].sort((a,b)=>b.m-a.m||b.day-a.day);
+    $('#j-body').innerHTML=`<div class="kanban">${JSTAT.map((s,si)=>{const items=recent.filter(j=>j.st===s);const show=s==='Feita'?items.slice(0,12):items;
+      return `<div class="kcol" data-st="${s}"><div class="kcol-h"><i class="adot" style="margin:0;background:var(--${['txt3','blue','amber','teal'][si]})"></i>${s}<span class="seg" style="padding:0 6px;margin-left:auto;font-size:10.5px">${items.length}</span></div>
+      ${show.map(j=>`<div class="kcard" draggable="true" data-key="${j.key}"><div style="display:flex;justify-content:space-between;align-items:center"><span class="mono" style="color:var(--purple2)">${j.key}</span><span class="pill ${priC[j.pri]}">${j.pri}</span></div>
+        <div class="kt">${j.sum}</div><div style="display:flex;justify-content:space-between;align-items:center"><span class="r-meta">${BRANDS[j.b].replace('BRAND ','')} · ${j.team}</span>${avatar(PEOPLE[j.a],22)}</div></div>`).join('')}
+      ${items.length>show.length?`<div class="r-meta" style="text-align:center;padding:6px">+${items.length-show.length} concluídas</div>`:''}</div>`}).join('')}</div>`;
+    $$('.kcard').forEach(c=>{c.ondragstart=e=>{e.dataTransfer.setData('text',c.dataset.key);c.classList.add('dragging')};c.ondragend=()=>c.classList.remove('dragging');c.onclick=()=>jiraDrawer(c.dataset.key)});
+    $$('.kcol').forEach(col=>{col.ondragover=e=>{e.preventDefault();col.classList.add('over')};col.ondragleave=()=>col.classList.remove('over');
+      col.ondrop=e=>{e.preventDefault();col.classList.remove('over');const j=JIRA.find(x=>x.key===e.dataTransfer.getData('text'));if(j&&j.st!==col.dataset.st){const from=j.st;j.st=col.dataset.st;toast(`${j.key} movida`,`${from} → ${j.st}`,'teal');render()}}});
+  } else {
+    $('#j-body').innerHTML=`<div class="tbl-card"><div id="t-jira"></div></div>`;
+    table('t-jira',{rows:base,size:12,onRow:j=>jiraDrawer(j.key),cols:[{l:'Key',k:'key',f:j=>`<span class="mono" style="color:var(--purple2)">${j.key}</span>`},{l:'Projeto',k:'proj'},{l:'Resumo',k:'sum'},
+      {l:'Status',sv:j=>JSTAT.indexOf(j.st),f:j=>`<span class="pill ${j.st==='Feita'?'p-teal':j.st==='Em Andamento'?'p-blue':j.st==='Em Revisão'?'p-amber':'p-gray'}">${j.st}</span>`},
+      {l:'Prioridade',sv:j=>JPRI.indexOf(j.pri),f:j=>`<span class="pill ${priC[j.pri]}">${j.pri}</span>`},{l:'Responsável',sv:j=>PEOPLE[j.a].name,f:j=>PEOPLE[j.a].short},
+      {l:'Atualizado',sv:j=>j.m*40+j.day,f:j=>`${String(j.day).padStart(2,'0')}/${MONTHS[j.m].slice(0,3)}`}]});
+  }
+};
+function newTask(){
+  openModal(`<div style="font-size:15px;font-weight:700;margin-bottom:12px">Nova tarefa</div>
+    <div class="sb-label">Projeto</div><select class="select" id="nt-p" style="margin-bottom:10px">${PROJ.map(p=>`<option>${p}</option>`).join('')}</select>
+    <div class="sb-label">Resumo</div><input class="input" id="nt-s" style="width:100%;margin-bottom:10px" placeholder="Ex.: Revisar macro de saque pendente">
+    <div class="sb-label">Prioridade</div><select class="select" id="nt-r">${JPRI.map(p=>`<option ${p==='Medium'?'selected':''}>${p}</option>`).join('')}</select>`,
+    `<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="createTask()">Criar tarefa</button>`);
+  setTimeout(()=>$('#nt-s').focus(),80);
+}
+function createTask(sum,proj,pri){
+  proj=proj||$('#nt-p').value; sum=sum||$('#nt-s').value.trim()||'Nova tarefa'; pri=pri||$('#nt-r')?.value||'High';
+  const j={key:`${proj}-${RI(11800,12999)}`,proj,b:proj.includes('ALPHA')?0:proj.includes('BETA')?1:2,team:proj.startsWith('CS')?'CS':'AFO',sum,st:'A Fazer',pri,a:16,m:G.m,day:28};
+  JIRA.unshift(j); closeModal(); toast('Tarefa criada',`${j.key} · ${sum}`,'teal'); if(G.screen==='jira')render(); return j;
+}
+
+/* ---------------- ANÁLISE IA ---------------- */
+const IA_LOG = [];
+function iaAnswer(q){
+  q=q.toLowerCase(); const a=auditAgg(A()), ap=auditAgg(A(G.m-1)), v=volAgg(V()), rk=agentRank();
+  const cats=CATS.map((c,i)=>({c,v:a.cat[i],p:ap.cat[i]})).sort((x,y)=>y.v-x.v);
+  if(/infra|pilar|erro/.test(q)) return `📊 <strong>Infrações · ${ctx()}</strong><br><br>Total: <strong>${N(a.inf)}</strong> (${a.inf>=ap.inf?'+':''}${N(a.inf-ap.inf)} vs mês anterior).<br>${cats.slice(0,4).map(x=>`• ${x.c}: <strong>${x.v}</strong> (${P(x.v/Math.max(1,a.inf)*100,0)})${x.p?` · ${x.v>=x.p?'▲':'▼'} ${P(Math.abs(x.v-x.p)/x.p*100,0)}`:''}`).join('<br>')}<br><br>🎯 Recomendação: priorizar uma calibração de <strong>${cats[0].c}</strong> com os analistas N1; concentra a maior fatia do período.`;
+  if(/csat|satisf|nps/.test(q)) return `⭐ <strong>CSAT · ${ctx()}</strong><br><br>CSAT bruto: <strong>${P(v.csat)}</strong> (${D(v.csat-volAgg(V(G.m-1)).csat)} p.p. vs P.A.)<br>CSAT justificado: <strong>${P(a.csatJ)}</strong><br>Conversão: <strong>${P(v.cvr)}</strong> · FCR: <strong>${P(v.fcr)}</strong><br><br>${v.fcr<75?'⚠️ FCR abaixo da meta de 75%: maior alavanca para CSAT no próximo ciclo.':'✅ FCR dentro da meta.'}`;
+  if(/rank|melhor|top|analista/.test(q)) return `🏆 <strong>Ranking · ${MONTHS[G.m]}</strong><br><br>${rk.slice(0,5).map((r,i)=>`${i+1}. ${r.p.name} · <strong>${D(r.score,2)}</strong> (${r.n} aud.)`).join('<br>')}<br><br>⚠️ Atenção: <strong>${rk.at(-1)?.p.name}</strong> tem o menor score (${D(rk.at(-1)?.score,2)}). Sugestão: plano de acompanhamento individual.`;
+  if(/risco|churn|crit|compliance/.test(q)){const cr=CASES.filter(c=>inBrand(c)&&c.open&&c.risk==='Crítico');return `🚨 <strong>Risco operacional</strong><br><br><strong>${cr.length}</strong> cases críticos em aberto.<br>${BRANDS.map((b,i)=>`• ${b}: ${cr.filter(c=>c.b===i).length}`).join('<br>')}<br><br>Sentimento predominante: <strong>Furioso</strong>. Recomendação: acionar o fluxo de Compliance e responder em até 2h.`}
+  if(/custo|token|gasto/.test(q)){const c=costAgg();return `💰 <strong>Custos IA · ${MONTHS[G.m]}</strong><br><br>Total: <strong>${USD(c.usd)}</strong> (${BRL(c.brl)}) para ${N(c.n)} auditorias.<br>Custo por auditoria: <strong>${USD(c.usd/Math.max(1,c.n))}</strong>.<br>Maior etapa: <strong>${c.per[0].nm}</strong> (${P(c.per[0].usd/c.usd*100,0)}).`}
+  return `Analisei <strong>${N(a.n)}</strong> auditorias e <strong>${N(v.conv)}</strong> conversas de ${ctx()}.<br><br>Posso aprofundar em: <strong>infrações</strong>, <strong>CSAT</strong>, <strong>ranking</strong>, <strong>risco</strong> ou <strong>custos</strong>.`;
+}
+SCREENS.ia = el=>{
+  const a=auditAgg(A()),ap=auditAgg(A(G.m-1)),rk=agentRank(),cats=CATS.map((c,i)=>({c,v:a.cat[i],p:ap.cat[i]})).sort((x,y)=>y.v-x.v);
+  const ins=[['up','var(--coral)',`${cats[0].c} lidera as infrações`,`${cats[0].v} ocorrências (${P(cats[0].v/Math.max(1,a.inf)*100,0)} do total) em ${MONTHS[G.m]}.`],
+    ['alert','var(--amber)',`${BRANDS[[0,1,2].sort((x,y)=>CASES.filter(c=>c.b===y&&c.risk==='Crítico').length-CASES.filter(c=>c.b===x&&c.risk==='Crítico').length)[0]]} concentra casos críticos`,'Maior volume de Compliance / Risk em aberto.'],
+    ['up','var(--teal)',`CSAT justificado ${a.csatJ>=ap.csatJ?'subiu':'caiu'} ${D(Math.abs(a.csatJ-ap.csatJ))} p.p.`,'Comparação com o mês anterior, já com abonos.'],
+    ['users','var(--purple)',`${rk[0]?.p.name} e ${rk[1]?.p.name} no topo`,`Scores ${D(rk[0]?.score,2)} e ${D(rk[1]?.score,2)}. Candidatos a multiplicadores.`]];
+  el.innerHTML = head('Análise IA',`Copiloto operacional com respostas calculadas sobre os dados filtrados · ${ctx()}`,'<span class="pill p-blue">BETA</span>')+
+  `<div class="g g12"><div><div class="card" style="margin-bottom:12px"><div class="card-h"><div class="card-t">Insights automáticos</div></div>
+      ${ins.map(([i,c,t,s])=>`<div class="insight"><div class="ic" style="background:color-mix(in srgb,${c} 15%,transparent);color:${c}">${ic(i,'width:14px;height:14px')}</div><div><div style="font-weight:600;font-size:12.5px">${t}</div><div class="r-meta" style="margin-top:2px">${s}</div></div></div>`).join('')}</div>
+    <div class="card"><div class="card-h"><div class="card-t">Ações sugeridas</div></div>
+      ${[[`Treinar ${cats[0].c}`,'Criar tarefa de calibração no Jira','CSALPHA'],['Revisar cases críticos','Abrir Cases filtrados por risco crítico',null],['Escalar revisões pendentes','Abrir fila de revisões',null]].map(([t,s,p],i)=>
+        `<div class="insight" style="cursor:pointer" onclick="${i===0?`createTask('Calibração: ${cats[0].c}','${p}','High')`:i===1?"go('cases',{risk:'Crítico'})":"go('revisoes')"}"><div class="ic" style="background:var(--purple-bg2);color:var(--purple2)">${ic('play','width:12px;height:12px')}</div><div><div style="font-weight:600;font-size:12.5px">${t}</div><div class="r-meta">${s}</div></div></div>`).join('')}</div></div>
+    <div class="card"><div class="chips">${['Resumo do mês','Infrações','CSAT','Ranking','Risco','Custos'].map(c=>`<button class="chip" data-q="${c}">${c}</button>`).join('')}</div>
+      <div class="chat"><div class="chat-log" id="chat-log">${IA_LOG.length?IA_LOG.map(m=>`<div class="bubble ${m.u?'u':'b'}">${m.t}</div>`).join(''):`<div class="bubble b">Olá, Diego. Sou o <strong>CORTEX IA</strong>. Pergunte sobre infrações, CSAT, ranking, riscos ou custos. As respostas usam os filtros atuais (<strong>${ctx()}</strong>).</div>`}</div>
+      <form class="chat-in" id="chat-f"><input class="input" id="chat-in" placeholder="Ex.: quais pilares mais pioraram este mês?" autocomplete="off"><button class="btn primary">${ic('send','width:13px;height:13px')}Enviar</button></form></div></div></div>`;
+  const log=$('#chat-log'); log.scrollTop=log.scrollHeight;
+  const ask=q=>{if(!q.trim())return;IA_LOG.push({u:1,t:q});log.insertAdjacentHTML('beforeend',`<div class="bubble u">${q}</div>`);
+    const b=document.createElement('div');b.className='bubble b';b.innerHTML='<span class="cursor"></span>';log.appendChild(b);log.scrollTop=log.scrollHeight;
+    const ans=iaAnswer(q), tokens=ans.split(/(<[^>]+>|\s+)/).filter(Boolean); let i=0,out='';
+    setTimeout(function tick(){for(let k=0;k<3&&i<tokens.length;k++)out+=tokens[i++];b.innerHTML=out+(i<tokens.length?'<span class="cursor"></span>':'');log.scrollTop=log.scrollHeight;
+      if(i<tokens.length)setTimeout(tick,22);else IA_LOG.push({t:ans})},450)};
+  $('#chat-f').onsubmit=e=>{e.preventDefault();const v=$('#chat-in').value;$('#chat-in').value='';ask(v)};
+  $$('.chip[data-q]').forEach(c=>c.onclick=()=>ask(c.dataset.q));
+};
+
+/* ---------------- CUSTOS IA ---------------- */
+SCREENS.custos = el=>{
+  const c=costAgg(), p=costAgg(G.m-1); const f=UI.custos_f??={}; f.vol??=5000;
+  el.innerHTML = head('Custos IA',`Consumo do motor NEXUS v1.6 por etapa de auditoria · ${ctx()}`)+
+  `<div class="kpis k5">${kpi({id:'c1',label:'Custo total (USD)',value:USD(c.usd),deltaHtml:delta(c.usd,p.usd,{inv:true}),sub:`${USD(c.usd/Math.max(1,c.n))} por auditoria`,accent:'var(--purple)'})}
+    ${kpi({label:'Custo total (BRL)',value:BRL(c.brl),deltaHtml:`<span class="delta flat">Câmbio ${D(FX,2)}</span>`,sub:`${BRL(c.brl/Math.max(1,c.n))} por auditoria`,accent:'var(--teal)'})}
+    ${kpi({label:'Tokens',value:K(c.tokens),deltaHtml:delta(c.tokens,p.tokens,{inv:true}),sub:`${N(c.tokens/Math.max(1,c.n))} por auditoria`,accent:'var(--blue)'})}
+    ${kpi({label:'Auditorias',value:N(c.n),deltaHtml:delta(c.n,p.n),accent:'var(--amber)'})}
+    ${kpi({label:'Taxa de erro',value:'0,0%',deltaHtml:'<span class="delta up">Sem falhas</span>',sub:'Calibração: 10/06/2026',accent:'var(--green)'})}</div>
+  <div class="g g2"><div class="card"><div class="card-h"><div class="card-t">Custo por etapa · ${MONTHS[G.m]}</div></div><div id="co-st"></div></div>
+    <div class="card"><div class="card-h"><div class="card-t">Evolução mensal por marca</div></div><div id="co-tr"></div></div></div>
+  <div class="card"><div class="card-h"><div><div class="card-t">Simulador de custo</div><div class="card-s">Projete o custo mensal ao escalar a cobertura de auditoria</div></div></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(0,1fr));gap:16px;align-items:center">
+      <div><div class="sb-label">Auditorias por mês: <b id="sim-v" class="num" style="color:var(--txt1)">${N(f.vol)}</b></div><input type="range" id="sim" min="500" max="50000" step="500" value="${f.vol}" style="width:100%;accent-color:var(--purple)"></div>
+      <div><div class="kpi-label">USD / mês</div><div class="kpi-value num" id="sim-usd" style="font-size:20px">—</div></div>
+      <div><div class="kpi-label">BRL / mês</div><div class="kpi-value num" id="sim-brl" style="font-size:20px">—</div></div>
+      <div><div class="kpi-label">Equivalente em horas de auditor humano</div><div class="kpi-value num" id="sim-h" style="font-size:20px">—</div></div></div></div>`;
+  spark('#sp-c1',series(m=>costAgg(m).usd),css('--purple'));
+  apex('#co-st',{chart:{type:'bar',height:250},series:[{name:'USD',data:c.per.map(x=>+x.usd.toFixed(3))}],colors:[css('--purple')],plotOptions:{bar:{horizontal:true,borderRadius:4,barHeight:'60%',distributed:true}},
+    colors:[css('--purple'),css('--teal'),css('--blue'),css('--amber'),css('--coral'),css('--green')],legend:{show:false},xaxis:{categories:c.per.map(x=>x.nm),labels:{formatter:v=>'$'+(+v).toFixed(2)}},dataLabels:{enabled:true,formatter:v=>'$'+v.toFixed(2)},tooltip:{y:{formatter:v=>USD(v)}}});
+  const bset=G.brand==='all'?[0,1,2]:[+G.brand];
+  apex('#co-tr',{chart:{type:'area',height:250,stacked:true},series:bset.map(b=>({name:BRANDS[b],data:MONTHS.map((_,m)=>+(AUDITS.filter(a=>a.b===b&&a.m===m).length*STAGES.reduce((s,x)=>s+x[1],0)).toFixed(3))})),
+    colors:bset.map(b=>BRAND_C[b]),fill:{type:'gradient',gradient:{opacityFrom:.45,opacityTo:.05}},xaxis:{categories:MONTHS},yaxis:{labels:{formatter:v=>'$'+v.toFixed(2)}},legend:{position:'top',horizontalAlign:'left'}});
+  const sim=()=>{const v=f.vol,u=v*STAGES.reduce((s,x)=>s+x[1],0);$('#sim-v').textContent=N(v);$('#sim-usd').textContent=USD(u);$('#sim-brl').textContent=BRL(u*FX);$('#sim-h').textContent=N(v*6/60)+' h'};
+  $('#sim').oninput=e=>{f.vol=+e.target.value;sim()}; sim();
+};
+
+/* ---------------- USUÁRIOS ---------------- */
+SCREENS.usuarios = el=>{
+  const f=UI.usuarios_f??={}; f.lvl??='all';f.q??='';
+  const lv=p=>p.lvl.startsWith('N3')?'N3':p.lvl;
+  const rows=PEOPLE.filter(p=>(f.lvl==='all'||lv(p)===f.lvl)&&(!f.q||(p.name+p.email).toLowerCase().includes(f.q.toLowerCase())));
+  const rk=Object.fromEntries(agentRank().map(r=>[r.p.id,r]));
+  el.innerHTML = head('Usuários',`Equipe CS, Antifraude e Global · ${PEOPLE.length} pessoas com acesso via SSO`,`<button class="btn primary" onclick="toast('Convite enviado','Link de acesso SSO enviado para o e-mail informado.','teal')">+ Convidar</button>`)+
+  `<div class="kpis k4">${kpi({label:'Ativos',value:N(PEOPLE.length),deltaHtml:'<span class="delta flat">CS + AFO + Global</span>',accent:'var(--teal)',click:"UI.usuarios_f.lvl='all';render()"})}
+    ${[['N1','Analistas júnior','var(--blue)'],['N2','Analistas pleno','var(--amber)'],['N3','Sênior + Global','var(--purple)']].map(([l,s,c])=>kpi({label:l,value:N(PEOPLE.filter(p=>lv(p)===l).length),deltaHtml:`<span class="delta flat">${s}</span>`,accent:c,click:`UI.usuarios_f.lvl=UI.usuarios_f.lvl==='${l}'?'all':'${l}';render()`}).replace('class="kpi ',`class="kpi ${f.lvl===l?'sel':''} `)).join('')}</div>
+  <div class="tbl-card"><div class="tbl-bar"><div class="card-t">Pessoas</div><div class="search">${ic('search','width:13px;height:13px')}<input class="input" id="u-q" placeholder="Nome ou e-mail" value="${f.q}"></div></div><div id="t-users"></div></div>`;
+  table('t-users',{rows,size:12,onRow:p=>agentDrawer(p.id),cols:[{l:'Pessoa',sv:p=>p.name,f:p=>`<div style="display:flex;align-items:center;gap:10px">${avatar(p,30)}<div><div style="font-weight:600">${p.name}</div><div class="r-meta">${p.email}</div></div></div>`},
+    {l:'Nível',k:'lvl',f:p=>`<span class="pill p-purple">${p.lvl}</span>`},{l:'Time',k:'team'},{l:'Turno',k:'shift'},{l:'Parceiro',k:'partner'},{l:'Carga',k:'load'},
+    {l:'Score do mês',sv:p=>rk[p.id]?.score??-1,f:p=>rk[p.id]?`<span class="score ${sclass(rk[p.id].score)}">${D(rk[p.id].score,2)}</span>`:'<span style="color:var(--txt4)">—</span>'},
+    {l:'Acesso',ns:1,f:p=>`<div class="switch ${p.active?'on':''}" role="switch" aria-checked="${p.active}" onclick="event.stopPropagation();PEOPLE[${p.id}].active=!PEOPLE[${p.id}].active;this.classList.toggle('on');toast('Acesso '+(PEOPLE[${p.id}].active?'reativado':'suspenso'),'${p.name}',PEOPLE[${p.id}].active?'teal':'amber')"></div>`}]});
+  let t;$('#u-q').oninput=e=>{clearTimeout(t);t=setTimeout(()=>{f.q=e.target.value;render();const i=$('#u-q');i.focus();i.setSelectionRange(i.value.length,i.value.length)},180)};
+};
+
+/* ---------------- JOBS ---------------- */
+const CONSOLE = ['<span class="in">[cortex]</span> scheduler online · 12 jobs registrados'];
+SCREENS.jobs = el=>{
+  const ago=s=>s<60?'agora':s<3600?`há ${Math.floor(s/60)}m`:`há ${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`;
+  const fails=JOBS.filter(j=>j.status==='fail').length;
+  el.innerHTML = head('Conectores & Jobs','Orquestração de integrações (Intercom, Jira, Confluence, Slack) · execuções em tempo real')+
+  `<div class="kpis k4">${kpi({label:'Jobs ativos',value:N(JOBS.length),deltaHtml:fails?`<span class="delta down">${fails} com falha</span>`:'<span class="delta up">Todos operacionais</span>',accent:'var(--teal)'})}
+    ${kpi({label:'Execuções / dia',value:N(JOBS.reduce((s,j)=>s+j.hist.at(-1).ok,0)),deltaHtml:'<span class="delta flat">Últimas 24h</span>',accent:'var(--purple)'})}
+    ${kpi({label:'Taxa de sucesso (14d)',value:P(JOBS.reduce((s,j)=>s+j.hist.reduce((t,h)=>t+h.ok,0),0)/JOBS.reduce((s,j)=>s+j.hist.reduce((t,h)=>t+h.ok+h.fail,0),0)*100),deltaHtml:'<span class="delta up">SLO 99%</span>',accent:'var(--blue)'})}
+    ${kpi({label:'Tempo real',value:N(JOBS.filter(j=>j.kind!=='CRON').length),deltaHtml:'<span class="delta flat">Webhooks e eventos</span>',accent:'var(--amber)'})}</div>
+  <div class="g g32"><div class="tbl-card" style="margin:0">${JOBS.map(j=>`<div class="job" id="job-${j.id}"><div class="jstat ${j.status}"></div>
+      <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:12.5px">${j.name}</div><div class="r-meta">${j.desc} · ${j.freq}</div><div class="jprog"><i></i></div></div>
+      <span class="pill ${j.kind==='CRON'?'p-purple':j.kind==='WEBHOOK'?'p-blue':'p-amber'}">${j.kind}</span><span class="r-meta hide-m" style="width:70px;text-align:right">${j.kind==='CRON'?ago(j.ago):'tempo real'}</span>
+      <button class="btn sm" data-run="${j.id}" ${j.status==='run'?'disabled':''}>${ic('play','width:11px;height:11px')}Executar</button></div>`).join('')}</div>
+    <div><div class="card" style="margin-bottom:12px"><div class="card-h"><div class="card-t">Execuções · 14 dias</div></div><div id="jb-h"></div></div>
+      <div class="card"><div class="card-h"><div class="card-t">Console</div><button class="link" onclick="CONSOLE.length=0;render(false)">Limpar</button></div><div class="console" id="console">${CONSOLE.join('<br>')}</div></div></div></div>`;
+  $('#console').scrollTop=1e9;
+  $$('[data-run]').forEach(b=>b.onclick=()=>runJob(+b.dataset.run));
+  apex('#jb-h',{chart:{type:'bar',height:190,stacked:true},series:[{name:'Sucesso',data:Array.from({length:14},(_,d)=>JOBS.reduce((s,j)=>s+j.hist[d].ok,0))},{name:'Falha',data:Array.from({length:14},(_,d)=>JOBS.reduce((s,j)=>s+j.hist[d].fail,0))}],
+    colors:[css('--teal'),css('--coral')],plotOptions:{bar:{columnWidth:'60%',borderRadius:2}},xaxis:{categories:Array.from({length:14},(_,d)=>'D-'+(13-d)),labels:{rotate:0,formatter:v=>(+String(v).slice(2))%2===0?v:''}},legend:{position:'top',horizontalAlign:'left'}});
+};
+function log(line){CONSOLE.push(line);const c=$('#console');if(c){c.innerHTML=CONSOLE.join('<br>');c.scrollTop=1e9}}
+function runJob(id){
+  const j=JOBS[id]; if(j.status==='run')return; j.status='run'; const ts=()=>new Date().toLocaleTimeString('pt-BR');
+  if(G.screen==='jobs')render(false); log(`<span class="in">${ts()}</span> ▶ ${j.name} iniciado`);
+  const row=()=>$('#job-'+id); const steps=['autenticando conector','buscando delta desde a última execução',`processando ${RI(80,900)} registros`,'gravando no data lake','publicando métricas'];
+  let k=0; const dur=2200+RI(0,1800);
+  const iv=setInterval(()=>{const r=row();if(r){r.querySelector('.jprog').style.display='block';r.querySelector('.jprog i').style.width=Math.min(100,(k+1)/steps.length*100)+'%'}
+    if(k<steps.length){log(`<span class="in">${ts()}</span>   · ${steps[k]}`);k++}else{clearInterval(iv);const ok=rnd()>.12;j.status=ok?'ok':'fail';j.ago=0;j.hist.at(-1)[ok?'ok':'fail']++;
+      log(ok?`<span class="ok">${ts()} ✔ ${j.name} concluído em ${(dur/1000).toFixed(1)}s</span>`:`<span class="er">${ts()} ✖ ${j.name} falhou: timeout no provedor (HTTP 504)</span>`);
+      toast(ok?'Job concluído':'Falha no job',j.name,ok?'teal':'coral'); if(!ok)notify('Falha: '+j.name,'Timeout no provedor (HTTP 504)','coral','jobs');
+      if(G.screen==='jobs')render(false)}},dur/steps.length);
+}
+
+/* ---------------- CONFIGURAÇÕES ---------------- */
+const NOTIFIERS=[['#ops-reports','Volumetria Intercom 6h','Total de conversas, canais e top 5 tópicos','4x/dia',true],['#ops-reports','Volumetria Intercom diária','Consolidado do dia anterior','1x/dia',true],
+  ['#ops-brasil','Monitoria diária','Infrações, score geral e top analistas','1x/dia',true],['#ops-brasil','Monitoria semanal','Top 3 analistas geral e por marca','Seg',false],
+  ['#ops-brasil','Falha sistêmica','Alerta imediato com menção ao responsável','Tempo real',true],['#ops-brasil','Caso crítico em tempo real','SLA, fraude, menor de idade e ameaça jurídica','Tempo real',true]];
+SCREENS.settings = el=>{
+  el.innerHTML = head('Configurações','Preferências da conta, notificadores e relatórios')+
+  `<div class="g g2"><div class="card"><div class="card-t" style="margin-bottom:4px">Aparência</div>
+      <div class="set-row"><div class="txt"><div style="font-weight:600">Tema</div><div class="r-meta">Aplica-se a todos os gráficos</div></div>${segH('th',[['dark','Escuro'],['light','Claro']],G.theme)}</div>
+      <div class="set-row"><div class="txt"><div style="font-weight:600">Marca padrão</div><div class="r-meta">Marca exibida ao abrir o CORTEX</div></div>
+        <select class="select sm" id="st-b"><option value="all">Todas as marcas</option>${BRANDS.map((b,i)=>`<option value="${i}" ${store.get('brand','all')==i?'selected':''}>${b}</option>`).join('')}</select></div>
+      <div class="card-t" style="margin:18px 0 4px">Relatórios</div>
+      <div class="set-row"><div class="txt"><div style="font-weight:600">Relatório executivo</div><div class="r-meta">Semanal e mensal · Drive Monitoria</div></div><button class="btn" onclick="genReport()">Gerar agora</button></div>
+      <div class="set-row"><div class="txt"><div style="font-weight:600">Ranking de analistas</div><div class="r-meta">Top 3 geral e por marca</div></div><button class="btn" onclick="genReport('Ranking de analistas')">Gerar agora</button></div>
+      <div class="set-row"><div class="txt"><div style="font-weight:600">Google SSO</div><div class="r-meta">Workspace orion-ops.net · diego.m@orion-ops.net</div></div><span class="pill p-teal">Ativo</span></div></div>
+    <div class="card"><div class="card-t" style="margin-bottom:4px">Notificadores Slack</div>
+      ${NOTIFIERS.map((n,i)=>`<div class="set-row"><div class="txt"><div style="font-weight:600">${n[1]} <span class="mono">${n[0]}</span></div><div class="r-meta">${n[2]} · ${n[3]}</div></div>
+        <div class="switch ${n[4]?'on':''}" role="switch" tabindex="0" data-n="${i}"></div></div>`).join('')}</div></div>`;
+  bindSeg(el,'th',v=>setTheme(v));
+  $('#st-b').onchange=e=>{store.set('brand',e.target.value);toast('Preferência salva',`Marca padrão: ${e.target.value==='all'?'Todas as marcas':BRANDS[e.target.value]}`,'teal')};
+  $$('[data-n]').forEach(s=>s.onclick=()=>{const n=NOTIFIERS[+s.dataset.n];n[4]=!n[4];s.classList.toggle('on');toast(n[4]?'Notificador ativado':'Notificador pausado',`${n[1]} · ${n[0]}`,n[4]?'teal':'amber')});
+};
+function genReport(name='Relatório executivo'){
+  toast(`${name} em geração`,`${ctx()} · aguarde alguns segundos`,'blue');
+  setTimeout(()=>{toast(`${name} pronto`,'Salvo no Drive Monitoria e enviado para #ops-brasil','teal');notify(`${name} pronto`,ctx(),'teal','dashboards')},2600);
+}
+</script>
+<script>
+/* =====================================================================
+   7) DRAWERS DE DETALHE (drill-through)
+   ===================================================================== */
+function agentDrawer(pid){
+  const p=PEOPLE[pid], mine=AUDITS.filter(a=>a.a===pid&&inBrand(a)), cur=auditAgg(mine.filter(a=>a.m===G.m)), team=auditAgg(A());
+  const tr=series(m=>auditAgg(mine.filter(a=>a.m===m)).score), last=mine.filter(a=>a.m===G.m).sort((a,b)=>a.score-b.score).slice(0,5);
+  openDrawer(`<div style="display:flex;gap:12px;align-items:center">${avatar(p,46)}<div><div style="font-size:16px;font-weight:800">${p.name}</div><div class="r-meta">${p.lvl} · ${p.team} · ${p.shift} · ${p.partner}</div><div class="mono" style="margin-top:2px">${p.email}</div></div></div>`,
+    `<div class="kpis k4" style="grid-template-columns:repeat(4,minmax(0,1fr))">${[['Score',D(cur.score,2)],['Auditorias',N(cur.n)],['Infrações',N(cur.inf)],['CSAT',P(cur.csat,0)]].map(([l,v])=>`<div class="kpi" style="padding:10px 12px"><div class="kpi-label">${l}</div><div class="kpi-value num" style="font-size:18px">${v}</div></div>`).join('')}</div>
+     <div class="sec-t">Pilares vs média da equipe</div><div id="ag-radar"></div>
+     <div class="sec-t">Evolução do score</div><div id="ag-trend"></div>
+     <div class="sec-t">Auditorias com menor score em ${MONTHS[G.m]}</div>
+     ${last.length?last.map(a=>`<div class="alert-row" onclick="auditDrawer('${a.id}')"><div class="adot" style="background:var(--${a.score<8.5?'coral':a.score<9.5?'amber':'teal'})"></div><div style="flex:1"><div class="a-t"><span class="mono">${a.id}</span> · ${BRANDS[a.b].replace('BRAND ','')}</div><div class="a-m">${a.inf.map(i=>i.cat+' ('+i.sev+')').join(', ')||'Sem infrações'}</div></div><b class="score ${sclass(a.score)}">${D(a.score,1)}</b></div>`).join(''):'<div class="empty">Sem auditorias neste recorte.</div>'}`,
+    `<button class="btn" onclick="go('monitoria',{ag:'${pid}'});closeDrawer()">Ver na Monitoria</button><button class="btn primary" onclick="createTask('Plano de desenvolvimento: ${p.name}','CSALPHA','Medium')">Criar plano de desenvolvimento</button>`,
+    ()=>{apex('#ag-radar',{chart:{type:'radar',height:250},series:[{name:p.short,data:PILAR_LIST.map(x=>+(cur.ps[x]??0).toFixed(2))},{name:'Equipe',data:PILAR_LIST.map(x=>+(team.ps[x]??0).toFixed(2))}],
+      labels:PILAR_LIST,colors:[css('--purple'),css('--teal')],yaxis:{min:8,max:10,tickAmount:4,show:false},markers:{size:3},fill:{opacity:.18},stroke:{width:2},legend:{position:'top'},
+      plotOptions:{radar:{size:95,polygons:{strokeColors:css('--border'),connectorColors:css('--border'),fill:{colors:['transparent']}}}}});
+      apex('#ag-trend',{chart:{type:'area',height:170},series:[{name:'Score',data:tr.map(v=>v==null?null:+v.toFixed(2))}],colors:[css('--purple')],xaxis:{categories:MONTHS},yaxis:{min:7,max:10,labels:{formatter:v=>D(v,1)}},
+      fill:{type:'gradient',gradient:{opacityFrom:.35,opacityTo:0}},markers:{size:4},annotations:{yaxis:[{y:9.5,borderColor:css('--teal'),strokeDashArray:4}]}})});
+}
+function auditDrawer(id){
+  const a=AUDITS.find(x=>x.id===id); if(!a) return; const p=PEOPLE[a.a]; const rev=REVIEWS.find(r=>r.aud===id);
+  openDrawer(`<div class="r-meta">Auditoria IA · ${BRANDS[a.b]} · ${String(a.day).padStart(2,'0')}/${MONTHS[a.m]}</div><div style="font-size:16px;font-weight:800;margin-top:2px" class="mono">${a.id}</div>
+      <div style="display:flex;gap:6px;margin-top:8px"><span class="pill ${a.status==='Auditado'?'p-green':a.status==='Em revisão'?'p-amber':'p-coral'}">${a.status}</span>${rev?`<span class="pill p-purple">${rev.id} · ${rev.status}</span>`:''}</div>`,
+    `<div style="display:flex;align-items:center;gap:16px;margin-bottom:6px"><div id="au-g" style="width:150px"></div><div style="flex:1">${PILAR_LIST.map(x=>`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${x}</span><b class="${sclass(a.ps[x])}">${D(a.ps[x],1)}</b></div><div class="meter"><i style="width:${a.ps[x]*10}%;background:${a.ps[x]>=9.5?'var(--teal)':a.ps[x]>=8.5?'var(--amber)':'var(--coral)'}"></i></div></div>`).join('')}</div></div>
+     <dl class="dl"><dt>Analista</dt><dd><a class="link" onclick="agentDrawer(${p.id})">${p.name}</a></dd><dt>Duração</dt><dd>${T(a.dur)}</dd><dt>CSAT</dt><dd>${!a.rated?'Sem avaliação':a.pos?'Positivo':'Negativo · abono '+a.just.toLowerCase()}</dd></dl>
+     <div class="sec-t">Infrações detectadas</div>${a.inf.length?a.inf.map(i=>`<div class="insight"><div class="ic" style="background:var(--coral-bg);color:var(--coral)">${ic('alert','width:13px;height:13px')}</div><div style="flex:1"><div style="font-weight:600;font-size:12.5px">${i.cat} <span class="pill ${SEV_PILL[i.sev]}">${i.sev}</span></div><div class="r-meta" style="margin-top:3px">Pilar ${i.pilar} · evidência destacada na transcrição</div></div></div>`).join(''):'<div class="r-meta">Nenhuma infração. Atendimento aderente à matriz.</div>'}
+     <div class="sec-t">Trecho da transcrição</div><div class="transcript">${a.tr.map(([w,t],k)=>`<div class="msg ${w?'a':'c'} ${a.inf.length&&w&&k===3?'flag':''}">${t}</div>`).join('')}</div>`,
+    a.inf.length&&!rev?`<button class="btn" onclick="closeDrawer()">Fechar</button><button class="btn primary" onclick="openReview('${a.id}')">Solicitar revisão</button>`:`<button class="btn" onclick="closeDrawer()">Fechar</button>`,
+    ()=>apex('#au-g',{chart:{type:'radialBar',height:170,sparkline:{enabled:true}},series:[+(a.score*10).toFixed(1)],colors:[a.score>=9.5?css('--teal'):a.score>=8.5?css('--amber'):css('--coral')],
+      plotOptions:{radialBar:{hollow:{size:'62%'},track:{background:css('--bg3')},dataLabels:{name:{show:true,offsetY:18,color:css('--txt3'),fontSize:'11px'},value:{offsetY:-12,fontSize:'26px',fontWeight:800,color:css('--txt1'),formatter:v=>D(v/10,1)}}}},labels:['Score']}));
+}
+function openReview(id){
+  const a=AUDITS.find(x=>x.id===id);
+  openModal(`<div style="font-size:15px;font-weight:700">Solicitar revisão</div><div class="r-meta" style="margin:4px 0 14px"><span class="mono">${id}</span> · ${a.inf[0].cat} (${a.inf[0].sev})</div>
+    <div class="sb-label">Tipo</div><select class="select" id="rq-t" style="margin-bottom:10px">${REV_TYPES.map(t=>`<option>${t}</option>`).join('')}</select>
+    <div class="sb-label">Motivo</div><textarea class="input" id="rq-m" placeholder="Descreva por que a infração deve ser revista"></textarea>`,
+    `<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn primary" onclick="submitReview('${id}')">Enviar para a IA</button>`);
+}
+function submitReview(id){
+  const a=AUDITS.find(x=>x.id===id), rid='REV-'+String(REVIEWS.length+1).padStart(3,'0');
+  REVIEWS.unshift({id:rid,aud:id,b:a.b,m:G.m,type:$('#rq-t').value,pilar:a.inf[0].pilar,cat:a.inf[0].cat,req:a.a,status:'Pendente IA',reason:$('#rq-m').value||'Contestação registrada pelo analista',result:null});
+  a.status='Em revisão'; closeModal(); closeDrawer(); toast('Revisão aberta',`${rid} entrou na fila da IA`,'teal'); renderNav(); bump('revisoes'); render();
+}
+function caseDrawer(id){
+  const c=CASES.find(x=>x.id===id); const p=PEOPLE[c.a];
+  openDrawer(`<div class="r-meta">${c.cat} · ${BRANDS[c.b]}</div><div style="font-size:16px;font-weight:800;margin-top:2px">${c.intent}</div><div class="mono" style="margin-top:3px">${c.id}</div>
+    <div style="display:flex;gap:6px;margin-top:8px"><span class="pill ${SENT_C[c.sent]}">${c.sent}</span><span class="pill ${c.risk==='Crítico'?'p-coral':c.risk==='Alto'?'p-amber':'p-gray'}">Risco ${c.risk}</span><span class="pill ${c.open?'p-amber':'p-green'}">${c.open?'Aberto':'Fechado'}</span></div>`,
+    `<dl class="dl"><dt>Analista</dt><dd><a class="link" onclick="agentDrawer(${p.id})">${p.name}</a></dd><dt>Aberto há</dt><dd>${c.hours}h</dd><dt>Jira</dt><dd>${c.jira?`<span class="mono" style="color:var(--purple2)">${c.jira}</span>`:'Sem tarefa vinculada'}</dd>
+      <dt>Risco de churn</dt><dd><div class="meter" style="width:160px;display:inline-block;vertical-align:middle"><i style="width:${{Crítico:95,Alto:72,Médio:45,Baixo:18}[c.risk]}%;background:var(--${c.risk==='Crítico'?'coral':c.risk==='Alto'?'amber':'blue'})"></i></div></dd></dl>
+     <div class="sec-t">Resumo da IA</div><div style="font-size:12.5px;line-height:1.55;color:var(--txt2)">Cliente relata <b>${c.intent.toLowerCase()}</b>. Tom ${c.sent.toLowerCase()} com ${c.risk==='Crítico'?'menção a órgãos externos e':''} intenção de encerrar o relacionamento. Recomenda-se ${c.risk==='Crítico'?'escalonamento imediato para Compliance':'resposta com prazo explícito e acompanhamento ativo'}.</div>
+     <div class="sec-t">Linha do tempo</div><div class="timeline">${[['Conversa iniciada','Canal: Chat · Intercom'],['Classificação IA',`${c.cat} · confiança 93%`],c.jira?['Tarefa Jira criada',c.jira]:null,c.open?['Aguardando retorno','SLA interno: 24h']:['Case encerrado','Cliente informado']].filter(Boolean).map(([t,s])=>`<div class="tl"><b>${t}</b><div class="a-m">${s}</div></div>`).join('')}</div>`,
+    `${c.open?`<button class="btn" onclick="closeCase('${c.id}')">Encerrar case</button>`:''}${!c.jira?`<button class="btn primary" onclick="caseJira('${c.id}')">Criar tarefa Jira</button>`:''}`);
+}
+function closeCase(id){const c=CASES.find(x=>x.id===id);c.open=false;closeDrawer();toast('Case encerrado',c.intent,'teal');renderNav();render()}
+function caseJira(id){const c=CASES.find(x=>x.id===id);const j=createTask(`${c.intent} · ${c.id}`,`CS${['ALPHA','BETA','GAMMA'][c.b]}`,c.risk==='Crítico'?'Highest':'High');c.jira=j.key;caseDrawer(id);render()}
+function chDrawer(id){
+  const c=CH.find(x=>x.id===id);
+  openDrawer(`<div class="r-meta">${c.ch} · ${BRANDS[c.b]}</div><div style="font-size:16px;font-weight:800;margin-top:2px">${c.subject}</div><div class="mono">${c.id}</div>`,
+    `<dl class="dl"><dt>Responsável</dt><dd>${PEOPLE[c.owner].name}</dd><dt>Prazo</dt><dd>${c.elapsed} de ${c.sla} dias ${c.elapsed>c.sla?'<span class="pill p-coral">Fora do SLA</span>':''}</dd><dt>Status</dt><dd>${c.status}</dd></dl>
+     <div class="sec-t">Próximos passos sugeridos</div><div class="timeline"><div class="tl"><b>Consolidar evidências</b><div class="a-m">Histórico do Intercom e logs de transação</div></div><div class="tl"><b>Validar com Jurídico</b><div class="a-m">Obrigatório para ${c.ch}</div></div><div class="tl"><b>Responder no portal</b><div class="a-m">Antes do fim do prazo</div></div></div>`,
+    c.status!=='Respondido'?`<button class="btn primary" onclick="CH.find(x=>x.id==='${id}').status='Respondido';closeDrawer();toast('Resposta registrada','${c.id} · ${c.ch}','teal');render()">Marcar como respondido</button>`:'');
+}
+function jiraDrawer(key){
+  const j=JIRA.find(x=>x.key===key);
+  openDrawer(`<div class="mono" style="color:var(--purple2)">${j.key}</div><div style="font-size:16px;font-weight:800;margin-top:2px">${j.sum}</div>`,
+    `<dl class="dl"><dt>Projeto</dt><dd>${j.proj} · ${j.team}</dd><dt>Marca</dt><dd>${BRANDS[j.b]}</dd><dt>Responsável</dt><dd>${PEOPLE[j.a].name}</dd><dt>Prioridade</dt><dd>${j.pri}</dd></dl>
+     <div class="sb-label">Status</div>${segH('jst',JSTAT.map(s=>[s,s]),j.st)}`,'',
+    ()=>bindSeg($('#drawer'),'jst',v=>{j.st=v;toast(`${j.key} atualizada`,`Status: ${v}`,'teal');jiraDrawer(key);if(G.screen==='jira')render()}));
+}
+
+/* =====================================================================
+   8) PALETA DE COMANDOS (Ctrl/⌘ K)
+   ===================================================================== */
+let CMD=[],cmdI=0;
+function cmdItems(q){
+  q=q.toLowerCase().trim(); const out=[];
+  Object.entries(TITLES).forEach(([id,[t,g]])=>{if(!q||t.toLowerCase().includes(q))out.push({g:'Telas',t,s:g,run:()=>go(id),i:'grid'})});
+  if(q){PEOPLE.filter(p=>p.name.toLowerCase().includes(q)).slice(0,5).forEach(p=>out.push({g:'Pessoas',t:p.name,s:p.lvl+' · '+p.team,run:()=>agentDrawer(p.id),i:'users'}));
+    if(/^\d{3,}/.test(q)){AUDITS.filter(a=>a.id.includes(q)).slice(0,4).forEach(a=>out.push({g:'Auditorias',t:a.id,s:BRANDS[a.b]+' · '+PEOPLE[a.a].short,run:()=>auditDrawer(a.id),i:'shield'}));
+      CASES.filter(c=>c.id.includes(q)).slice(0,3).forEach(c=>out.push({g:'Cases',t:c.id,s:c.intent,run:()=>caseDrawer(c.id),i:'chat'}))}
+    JIRA.filter(j=>j.key.toLowerCase().includes(q)).slice(0,4).forEach(j=>out.push({g:'Jira',t:j.key,s:j.sum,run:()=>jiraDrawer(j.key),i:'check'}));}
+  [['Alternar tema',()=>setTheme(G.theme==='dark'?'light':'dark'),'sun'],['Gerar relatório executivo',()=>genReport(),'dl'],['Nova tarefa Jira',()=>newTask(),'check'],...BRANDS.map((b,i)=>[`Filtrar: ${b}`,()=>setBrand(String(i)),'grid']),['Filtrar: Todas as marcas',()=>setBrand('all'),'grid']]
+    .forEach(([t,run,i])=>{if(!q||t.toLowerCase().includes(q))out.push({g:'Ações',t,s:'',run,i})});
+  return out;
+}
+function renderCmd(){
+  CMD=cmdItems($('#cmdk-in').value); cmdI=Math.min(cmdI,Math.max(0,CMD.length-1)); let g='';
+  $('#cmdk-list').innerHTML=CMD.length?CMD.map((c,i)=>(c.g!==g?`<div class="cmdk-g">${g=c.g}</div>`:'')+`<div class="cmdk-i ${i===cmdI?'on':''}" data-i="${i}">${ic(c.i)}<span>${c.t}</span><span class="mono">${c.s}</span></div>`).join('')
+    :'<div class="empty"><b>Nada encontrado</b>Tente um nome, um ID de atendimento ou uma key do Jira.</div>';
+  $$('.cmdk-i').forEach(el=>{el.onclick=()=>execCmd(+el.dataset.i);el.onmousemove=()=>{if(cmdI!==+el.dataset.i){cmdI=+el.dataset.i;$$('.cmdk-i').forEach(x=>x.classList.toggle('on',+x.dataset.i===cmdI))}}});
+  $('.cmdk-i.on')?.scrollIntoView({block:'nearest'});
+}
+function openCmd(){$('#cmdk').classList.add('on');$('#scrim').classList.add('on');$('#cmdk-in').value='';cmdI=0;renderCmd();setTimeout(()=>$('#cmdk-in').focus(),30)}
+function closeCmd(){$('#cmdk').classList.remove('on');if(!$('#drawer').classList.contains('on')&&!$('#modal').classList.contains('on'))$('#scrim').classList.remove('on')}
+function execCmd(i){const c=CMD[i];closeCmd();c&&c.run()}
+
+/* =====================================================================
+   9) FILTROS GLOBAIS, TEMA, NOTIFICAÇÕES, TEMPO REAL
+   ===================================================================== */
+function setBrand(v){G.brand=v==='all'?'all':+v;$('#g-brand').value=String(v);Object.keys(UI).forEach(k=>{if(k.startsWith('t-'))UI[k].page=0});renderNav();render();renderBell();
+  toast('Filtro aplicado',v==='all'?'Todas as marcas':BRANDS[v],'purple')}
+function setMonth(m){G.m=+m;$('#g-month').value=m;renderNav();render()}
+function setTheme(t){G.theme=t;store.set('theme',t);document.documentElement.dataset.theme=t;$('#theme-ic').setAttribute('href',t==='dark'?'#i-sun':'#i-moon');render()}
+function bump(id){const b=$('#nb-'+id);if(b){b.classList.add('bump');setTimeout(()=>b.classList.remove('bump'),300)}}
+function renderBell(){
+  const unread=NOTIF.filter(n=>!n.read).length; $('#bell-count').textContent=unread; $('#bell-count').style.display=unread?'grid':'none';
+  const ago=t=>{const s=(Date.now()-t)/1000;return s<60?'agora':`há ${Math.floor(s/60)} min`};
+  $('#pop-bell').innerHTML=`<div class="pop-h">Notificações<button class="link" id="bell-read">Marcar todas como lidas</button></div><div style="max-height:380px;overflow-y:auto;padding:6px">
+    ${NOTIF.map((n,i)=>`<div class="alert-row" data-ni="${i}" style="${n.read?'opacity:.55':''}"><div class="adot" style="background:var(--${n.tone})"></div><div style="flex:1"><div class="a-t">${n.t}</div><div class="a-m">${n.s} · ${ago(n.at)}</div></div></div>`).join('')||'<div class="empty">Sem notificações.</div>'}</div>`;
+  $('#bell-read').onclick=e=>{e.stopPropagation();NOTIF.forEach(n=>n.read=true);renderBell()};
+  $$('[data-ni]').forEach(el=>el.onclick=()=>{const n=NOTIF[+el.dataset.ni];n.read=true;$('#pop-bell').classList.remove('on');n.go&&go(n.go);renderBell()});
+}
+
+/* ---------- Eventos globais ---------- */
+$('#g-brand').innerHTML=`<option value="all">Todas as marcas</option>`+BRANDS.map((b,i)=>`<option value="${i}">${b}</option>`).join('');
+$('#g-brand').value=String(G.brand); $('#g-brand').onchange=e=>setBrand(e.target.value);
+$('#g-month').innerHTML=MONTHS.map((m,i)=>`<option value="${i}">${m}</option>`).join(''); $('#g-month').value=G.m; $('#g-month').onchange=e=>setMonth(e.target.value);
+$('#btn-theme').onclick=()=>setTheme(G.theme==='dark'?'light':'dark');
+$('#btn-cmdk').onclick=openCmd;
+$('#btn-bell').onclick=e=>{e.stopPropagation();$('#pop-bell').classList.toggle('on')};
+document.addEventListener('click',e=>{if(!e.target.closest('#pop-bell'))$('#pop-bell').classList.remove('on')});
+$('#btn-menu').onclick=()=>{$('#sidebar').classList.add('on');$('#scrim').classList.add('on')};
+$('#scrim').onclick=()=>{closeDrawer();closeModal();closeCmd();$('#sidebar').classList.remove('on');$('#scrim').classList.remove('on')};
+$('#dr-close').onclick=closeDrawer;
+$('#cmdk-in').oninput=()=>{cmdI=0;renderCmd()};
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#cmdk').classList.contains('on')?closeCmd():openCmd();return}
+  if($('#cmdk').classList.contains('on')){if(e.key==='ArrowDown'){e.preventDefault();cmdI=Math.min(CMD.length-1,cmdI+1);renderCmd()}if(e.key==='ArrowUp'){e.preventDefault();cmdI=Math.max(0,cmdI-1);renderCmd()}if(e.key==='Enter'){e.preventDefault();execCmd(cmdI)}}
+  if(e.key==='Escape'){closeCmd();closeModal();closeDrawer();$('#sidebar').classList.remove('on');if(!$('#drawer').classList.contains('on'))$('#scrim').classList.remove('on')}
+  if(e.target.matches('input,textarea,select'))return;
+  if(e.key==='/'){e.preventDefault();openCmd()}
+  if(e.key==='[')setMonth(Math.max(0,G.m-1)); if(e.key===']')setMonth(Math.min(MONTHS.length-1,G.m+1));
+  if(e.key==='Enter'&&e.target.classList.contains('kpi'))e.target.click();
+});
+
+/* ---------- Tempo real simulado ---------- */
+let lastSync=Date.now();
+setInterval(()=>{const s=Math.floor((Date.now()-lastSync)/1000);$('#sync-label').textContent=s<5?'Sincronizado agora':`Sincronizado há ${s}s`},1000);
+setInterval(()=>{JOBS.forEach(j=>j.ago+=60);lastSync=Date.now()},60000);
+setTimeout(()=>{const c=CASES.find(x=>x.open&&x.risk==='Crítico'&&inBrand(x));if(c){notify('Novo case crítico',`${c.intent} · ${BRANDS[c.b]}`,'coral','cases');toast('Novo case crítico',`${c.intent} · ${BRANDS[c.b]}`,'coral')}},14000);
+
+/* ---------- Boot ---------- */
+document.documentElement.dataset.theme=G.theme; $('#theme-ic').setAttribute('href',G.theme==='dark'?'#i-sun':'#i-moon');
+REVIEWS.filter(r=>r.status==='Precisa Humano').slice(0,2).forEach(r=>notify(`${r.id} precisa de decisão humana`,`${r.type} · ${r.cat}`,'amber','revisoes'));
+CASES.filter(c=>c.open&&c.risk==='Crítico').slice(0,2).forEach(c=>notify('Case crítico em aberto',`${c.intent} · ${BRANDS[c.b]}`,'coral','cases'));
+notify('Auditoria ALPHA concluída',`${N(A().filter(a=>a.b===0).length)} conversas auditadas`,'teal','monitoria');
+renderBell(); go('visao');
+</script>
+</body>
+</html>
